@@ -1,0 +1,13 @@
+{
+  "name": "bcc-docs-template",
+  "scripts": {
+    "start": "npm run dev",
+    "serve": "npm run dev",
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  },
+    "license": "Apache-2.0",
+   "devDependencies": {
+    "vuepress": "^2.0.0-beta.60"
+  }
+}
