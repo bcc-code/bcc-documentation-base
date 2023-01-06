@@ -1,20 +1,22 @@
 import process from 'node:process'
 import { defineUserConfig } from '@vuepress/cli'
-import { defaultTheme } from '@vuepress/theme-default'
 import { getDirname, path } from '@vuepress/utils'
 import { navbar } from './theme/navbar'
+import { bccCodeTheme } from './theme/theme'
 
 const __dirname = getDirname(import.meta.url)
 const isProd = process.env.NODE_ENV === 'production'
 
 export default defineUserConfig({
-  // set site base to default value
   base: '/',
 
-  // configure default theme
-  theme: defaultTheme({
-    logoDark: "logoWhite.png",
-    logo: "logo.png",
+  title: 'Design System',
+
+  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
+
+  theme: bccCodeTheme({
+    logoDark: 'logoWhite.png',
+    logo: 'logo.png',
     repo: 'bcc-code',
     docsRepo: 'bcc-code/bcc-design', // TODO replace with dynamic value
     docsDir: 'docs', // TODO replace with dynamic value?
@@ -25,7 +27,7 @@ export default defineUserConfig({
     sidebar: {
         '/': [
             {
-              text: 'BCC Design',
+              text: 'Design System',
               children: [
                 '/README.md',
                 '/tokens.md',
@@ -39,18 +41,15 @@ export default defineUserConfig({
             },
           ],
     },
-    // page meta
+
     editLinkText: 'Edit this page on GitHub',
 
     themePlugins: {
-      // only enable git plugin in production mode
       git: isProd,
-      // use shiki plugin in production mode instead
       prismjs: !isProd,
     },
   }),
 
-  // configure markdown
   markdown: {
     importCode: {
       handleImportPath: (str) =>
@@ -58,7 +57,6 @@ export default defineUserConfig({
     },
   },
 
-  // use plugins
   plugins: [
     // only enable shiki plugin in production mode
     // isProd ? shikiPlugin({ theme: 'dark-plus' }) : [],
