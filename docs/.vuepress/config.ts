@@ -4,6 +4,7 @@ import { getDirname, path } from '@vuepress/utils'
 import { navbar } from './theme/navbar'
 import { bccCodeTheme } from './theme/theme'
 import * as data from "./data.json";
+import { generateSidebar } from './theme/helpers/generateSidebar'
 
 const __dirname = getDirname(import.meta.url)
 const isProd = process.env.NODE_ENV === 'production'
@@ -24,24 +25,7 @@ export default defineUserConfig({
 
     navbar,
 
-    // sidebar
-    sidebar: {
-        '/': [
-            {
-              text: data.title,
-              children: [
-                '/README.md',
-                '/tokens.md',
-              ],
-            },
-            {
-              text: 'Components',
-              children: [
-                '/components/README.md',
-              ],
-            },
-          ],
-    },
+    sidebar: generateSidebar(),
 
     editLinkText: 'Edit this page on GitHub',
 
