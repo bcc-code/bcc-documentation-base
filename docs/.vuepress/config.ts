@@ -3,6 +3,7 @@ import { defineUserConfig } from '@vuepress/cli'
 import { getDirname, path } from '@vuepress/utils'
 import { navbar } from './theme/navbar'
 import { bccCodeTheme } from './theme/theme'
+import * as data from "./data.json";
 
 const __dirname = getDirname(import.meta.url)
 const isProd = process.env.NODE_ENV === 'production'
@@ -10,7 +11,7 @@ const isProd = process.env.NODE_ENV === 'production'
 export default defineUserConfig({
   base: '/',
 
-  title: 'Design System',
+  title: data.title,
 
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
 
@@ -18,8 +19,8 @@ export default defineUserConfig({
     logoDark: 'logoWhite.png',
     logo: 'logo.png',
     repo: 'bcc-code',
-    docsRepo: 'bcc-code/bcc-design', // TODO replace with dynamic value
-    docsDir: 'docs', // TODO replace with dynamic value?
+    docsRepo: data.docsRepo,
+    docsDir: data.docsDir,
 
     navbar,
 
@@ -27,7 +28,7 @@ export default defineUserConfig({
     sidebar: {
         '/': [
             {
-              text: 'Design System',
+              text: data.title,
               children: [
                 '/README.md',
                 '/tokens.md',

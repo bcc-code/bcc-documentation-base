@@ -1,0 +1,8 @@
+{
+  "title": "Design System",
+  "description": "Documentation for the BCC Design System",
+  "base": "/",
+  "docsRepo": "bcc-code/bcc-design",
+  "docsDir": "docs",
+  "branch": "main"
+}
