@@ -60,6 +60,10 @@ const sortByPageOrder = (array, currentDirectory: string|null = null) => {
 }
 
 const getPageOrder = (filePath, currentDirectory: string|null = null) => {
+    if (filePath.toLowerCase().includes('readme') || filePath == 'index.md') {
+        return -1;
+    }
+
     const path = currentDirectory ?
         currentDirectory + '/' + filePath
         : data.docsDir + '/' + filePath;
