@@ -14,7 +14,9 @@ export default defineUserConfig({
 
   title: data.title,
 
-  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.ico' }]
+  ],
 
   theme: bccCodeTheme({
     logoDark: 'logoWhite.png',
