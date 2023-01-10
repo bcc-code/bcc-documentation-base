@@ -33,7 +33,7 @@ export const generateSidebar = (): SidebarConfig => {
         });
         
         sidebar['/'].push({
-            text: directory.charAt(0).toUpperCase() + directory.slice(1),
+            text: prettifyDirectoryName(directory),
             children: sortByPageOrder(filesInDirectory, currentDirectory).map(f => `/${directory}/${f}`),
         });
     });
@@ -72,4 +72,9 @@ const getPageOrder = (filePath, currentDirectory: string|null = null) => {
     }
 
     return frontmatter.data.order;
+}
+
+const prettifyDirectoryName = (name) => {
+    name = name.replaceAll("-", " ").replaceAll("_", " ");
+    return name.charAt(0).toUpperCase() + name.slice(1);
 }
