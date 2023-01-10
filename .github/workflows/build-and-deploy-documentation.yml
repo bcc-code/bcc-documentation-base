@@ -46,7 +46,7 @@ jobs:
       # ** The base and repository must match the repository name. Otherwise the page won't be compatibile with the github pages.
       - uses: microsoft/variable-substitution@v1
         with:
-          files: "vuepress/docs/.vuepress/userConfig.json"
+          files: "vuepress/docs/.vuepress/data.json"
         env:
           title: BCC Documentation
           description: Information on how to set up documentation for BCC project
