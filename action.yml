@@ -50,7 +50,7 @@ runs:
       shell: bash
       run: |
         cd vuepress
-        npm i && npm run build
+        npm ci && npm run build
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
