@@ -1,3 +1,0 @@
-# Third page
-
-Bla.
