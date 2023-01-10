@@ -66,4 +66,4 @@ jobs:
 
 Be sure to set the name and description of the repository. Generally it is advised to **not** prefix the name with "BCC".
 
-3. Push this to the main branch of the repository and you documentation site should be deployed to developer.bcc.no/repository-name/ 🎉
+3. Push this to the main branch of the repository and your documentation site should be deployed to developer.bcc.no/repository-name/ 🎉
