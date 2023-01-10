@@ -1,12 +1,11 @@
 import process from 'node:process'
 import { defineUserConfig } from '@vuepress/cli'
-import { getDirname, path } from '@vuepress/utils'
+import { shikiPlugin } from '@vuepress/plugin-shiki'
 import { navbar } from './theme/navbar'
 import { bccCodeTheme } from './theme/theme'
 import * as data from "./data.json";
 import { generateSidebar } from './theme/helpers/generateSidebar'
 
-const __dirname = getDirname(import.meta.url)
 const isProd = process.env.NODE_ENV === 'production'
 
 export default defineUserConfig({
@@ -33,19 +32,11 @@ export default defineUserConfig({
 
     themePlugins: {
       git: isProd,
-      prismjs: !isProd,
+      prismjs: false,
     },
   }),
 
-  markdown: {
-    importCode: {
-      handleImportPath: (str) =>
-        str.replace(/^@vuepress/, path.resolve(__dirname, '../../ecosystem')),
-    },
-  },
-
   plugins: [
-    // only enable shiki plugin in production mode
-    // isProd ? shikiPlugin({ theme: 'dark-plus' }) : [],
+    shikiPlugin({ theme: 'github-dark' }),
   ],
 })
