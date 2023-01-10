@@ -4,9 +4,11 @@ import { shikiPlugin } from '@vuepress/plugin-shiki'
 import { navbar } from './theme/navbar'
 import { bccCodeTheme } from './theme/theme'
 import * as data from "./data.json";
-import { generateSidebar } from './theme/helpers/generateSidebar'
+import { generateSidebar } from './theme/helpers/generateSidebar';
 
-const isProd = process.env.NODE_ENV === 'production'
+const isProd = process.env.NODE_ENV === 'production';
+
+const sidebar = generateSidebar();
 
 export default defineUserConfig({
   base: data.base,
@@ -26,7 +28,7 @@ export default defineUserConfig({
 
     navbar,
 
-    sidebar: generateSidebar(),
+    sidebar,
 
     editLinkText: 'Edit this page on GitHub',
 

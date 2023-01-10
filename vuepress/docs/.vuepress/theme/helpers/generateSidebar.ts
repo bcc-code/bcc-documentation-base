@@ -8,23 +8,16 @@ import glob from 'glob';
 import * as data from "../../data.json";
 import { readdirSync } from 'fs'
 
-const baseUrl = data.base;
-
-const getDirectories = source =>
-  readdirSync(source, { withFileTypes: true })
-    .filter(item => item.isDirectory() && item.name !== '.vuepress')
-    .map(item => item.name)
-
 export const generateSidebar = (): SidebarConfig => {
     const sidebar = {};
-    sidebar[baseUrl] = [];
+    sidebar['/'] = [];
 
     // Add files in the base folder as the first section
     let files = glob.sync(`*.md`, {
         cwd: data.docsDir,
     });
     
-    sidebar[baseUrl].push({
+    sidebar['/'].push({
         text: data.title,
         children: sortByPageOrder(files).map(f => `/${f}`),
     });
@@ -39,7 +32,7 @@ export const generateSidebar = (): SidebarConfig => {
             cwd: currentDirectory,
         });
         
-        sidebar[baseUrl].push({
+        sidebar['/'].push({
             text: directory.charAt(0).toUpperCase() + directory.slice(1),
             children: sortByPageOrder(filesInDirectory, currentDirectory).map(f => `/${directory}/${f}`),
         });
@@ -47,6 +40,11 @@ export const generateSidebar = (): SidebarConfig => {
 
     return sidebar;
 }
+
+const getDirectories = source =>
+  readdirSync(source, { withFileTypes: true })
+    .filter(item => item.isDirectory() && !item.name.startsWith('.'))
+    .map(item => item.name);
 
 const sortByPageOrder = (array, currentDirectory: string|null = null) => {
     return array.sort((a, b) => {
