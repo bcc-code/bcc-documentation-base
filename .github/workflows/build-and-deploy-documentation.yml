@@ -49,7 +49,7 @@ jobs:
           files: "vuepress/docs/.vuepress/data.json"
         env:
           title: Documentation Guide
-          description: Information on how to set up documentation for BCC project
+          description: Information on how to set up documentation for BCC projects
           base: /${{ github.event.repository.name }}/
           docsRepo: ${{ github.repository }}
 

@@ -1,5 +1,4 @@
 node_modules
 .temp
 .cache
-vuepress/docs
-!vuepress/docs/.vuepress
+docs/*.md

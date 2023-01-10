@@ -1,6 +1,6 @@
 {
-  "title": "Design System",
-  "description": "Documentation for the BCC Design System",
+  "title": "Documentation Guide",
+  "description": "Information on how to set up documentation for BCC projects",
   "base": "/",
   "docsRepo": "bcc-code/bcc-documentation-base",
   "docsDir": "docs",
