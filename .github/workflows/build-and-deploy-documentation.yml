@@ -23,38 +23,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out base repository
-        uses: actions/checkout@v3
+      - name: Build documentation site
+        uses: bcc-code/bcc-documentation-base@v0
         with:
-          repository: bcc-code/bcc-documentation-base
-
-      - name: Check out current repository
-        uses: actions/checkout@v3
-        with:
-          path: source
-
-      - name: Copy documentation to VuePress theme
-        run: |
-          cd source
-          cp -r ./docs/* $GITHUB_WORKSPACE/vuepress/docs/
-      - uses: microsoft/variable-substitution@v1
-        with:
-          files: "vuepress/docs/.vuepress/data.json"
-        env:
           title: Documentation Guide
           description: Information on how to set up documentation for BCC projects
-          base: /${{ github.event.repository.name }}/
-          docsRepo: ${{ github.repository }}
-
-      - name: Build VuePress site
-        run: |
-          cd vuepress
-          npm i && npm run build
-     
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: vuepress/docs/.vuepress/dist
         
   deploy:
     environment:
