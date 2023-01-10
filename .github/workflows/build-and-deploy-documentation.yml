@@ -51,7 +51,7 @@ jobs:
           title: BCC Documentation
           description: Information on how to set up documentation for BCC project
           base: /${{ github.event.repository.name }}/
-          repo: ${{ github.repository }}
+          docsRepo: ${{ github.repository }}
 
       # Build the VuePress site
       - name: Build VuePress site

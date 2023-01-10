@@ -2,7 +2,7 @@
   "title": "Design System",
   "description": "Documentation for the BCC Design System",
   "base": "/",
-  "docsRepo": "bcc-code/bcc-design",
+  "docsRepo": "bcc-code/bcc-documentation-base",
   "docsDir": "docs",
   "branch": "main"
 }
