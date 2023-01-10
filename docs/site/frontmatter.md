@@ -1,3 +1,7 @@
+---
+order: 20
+---
+
 # Extra available frontmatter
 
 To make it easy to control the order of pages in the sidebar, you can optionally add an `order` property to the page's [frontmatter](https://v2.vuepress.vuejs.org/guide/page.html#frontmatter).
