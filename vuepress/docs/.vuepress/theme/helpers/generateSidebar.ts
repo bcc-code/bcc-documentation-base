@@ -52,7 +52,6 @@ const sortByPageOrder = (array, currentDirectory: string|null = null) => {
     return array.sort((a, b) => {
         const pageOrderA = getPageOrder(a, currentDirectory);
         const pageOrderB = getPageOrder(b, currentDirectory);
-        console.log(pageOrderA, pageOrderB);
         if (pageOrderA < pageOrderB) return -1;
         if (pageOrderA > pageOrderB) return 1;
         return 0;

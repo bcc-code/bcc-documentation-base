@@ -10,7 +10,7 @@ const __dirname = getDirname(import.meta.url)
 const isProd = process.env.NODE_ENV === 'production'
 
 export default defineUserConfig({
-  base: '/',
+  base: data.base,
 
   title: data.title,
 
