@@ -23,27 +23,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Check out the template repository
-      - name: Check out template repository
+      - name: Check out base repository
         uses: actions/checkout@v2
         with:
           repository: bcc-code/bcc-documentation-base
 
-      # Pull the repository documentation and push it to the source folder
       - name: Check out current repository
         uses: actions/checkout@v2
         with:
           path: source
 
-      # Copy the source documentation to the docs
-      # ** The "$GITHUB_WORKSPACE/docs/" folder is the target for documenation (.md) files/folder. 
-      - name: List folders
+      - name: Copy documentation to VuePress theme
         run: |
           cd source
           cp -r ./docs/* $GITHUB_WORKSPACE/vuepress/docs/
-      # Configure parameters for documentation page
-      # ** TODO: Consider replacing title with a more friendly name
-      # ** The base and repository must match the repository name. Otherwise the page won't be compatibile with the github pages.
       - uses: microsoft/variable-substitution@v1
         with:
           files: "vuepress/docs/.vuepress/data.json"
@@ -53,19 +46,16 @@ jobs:
           base: /${{ github.event.repository.name }}/
           docsRepo: ${{ github.repository }}
 
-      # Build the VuePress site
       - name: Build VuePress site
         run: |
           cd vuepress
           npm i && npm run build
      
-      # Upload build output to artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           path: vuepress/docs/.vuepress/dist
         
- # Deployment job
   deploy:
     environment:
       name: github-pages
