@@ -1,8 +1,8 @@
 # BCC documentation base template
 
 This repository holds the base for documentation of all BCC projects. It consists of these parts:
-- `vuepress` - This is a VuePress base template including a theme, to be used by different documentation sites.
-- `docs` - Documentation on how to set up documentation for other projects.
+- `vuepress` - This is a VuePress base template including a theme, to be used by different documentation sites. Read more in [its readme](./vuepress/README.md).
+- `docs` - Public documentation for this project.
 - `action.yml` - A GitHub Action to be used by other repositories to build the documentation.
 
 ## Updating the GitHub Action
