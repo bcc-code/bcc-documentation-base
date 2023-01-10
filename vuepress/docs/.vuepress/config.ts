@@ -14,6 +14,7 @@ export default defineUserConfig({
   base: data.base,
 
   title: data.title,
+  description: data.description,
 
   head: [
     ['link', { rel: 'icon', href: `${data.base}favicon.ico` }]
