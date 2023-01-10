@@ -45,38 +45,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out base repository
-        uses: actions/checkout@v3
+      - name: Build documentation site
+        uses: bcc-code/bcc-documentation-base@v1
         with:
-          repository: bcc-code/bcc-documentation-base
-
-      - name: Check out current repository
-        uses: actions/checkout@v3
-        with:
-          path: source
-
-      - name: Copy documentation to VuePress theme
-        run: |
-          cd source
-          cp -r ./docs/* $GITHUB_WORKSPACE/vuepress/docs/
-      - uses: microsoft/variable-substitution@v1
-        with:
-          files: "vuepress/docs/.vuepress/data.json"
-        env:
-          title: /${{ github.event.repository.name }}/
-          description: /${{ github.event.repository.description }}/
-          base: /${{ github.event.repository.name }}/
-          docsRepo: ${{ github.repository }}
-
-      - name: Build VuePress site
-        run: |
-          cd vuepress
-          npm i && npm run build
-     
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: vuepress/docs/.vuepress/dist
+          title: FILL IN
+          description: FILL IN
         
   deploy:
     environment:
@@ -91,6 +64,6 @@ jobs:
 ```
 :::
 
-Be sure to adjust the paths if your docs come from a different folder, and to update the name and description of the repository. Generally it is advised to **not** prefix the name with "BCC".
+Be sure to set the name and description of the repository. Generally it is advised to **not** prefix the name with "BCC".
 
 3. Push this to the main branch of the repository and you documentation site should be deployed to developer.bcc.no/repository-name/ 🎉

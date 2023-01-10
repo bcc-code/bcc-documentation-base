@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation site
-        uses: bcc-code/bcc-documentation-base@v0
+        uses: bcc-code/bcc-documentation-base@v1
         with:
           title: Documentation Guide
           description: Information on how to set up documentation for BCC projects
