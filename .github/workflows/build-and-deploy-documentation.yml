@@ -24,12 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out base repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: bcc-code/bcc-documentation-base
 
       - name: Check out current repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: source
 
