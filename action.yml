@@ -17,6 +17,10 @@ inputs:
     description: 'Which branch to use for "Edit this page on GitHub" links'
     required: false
     default: 'main'
+  base:
+    description: 'The base url for the website'
+    required: false
+    default: /${{ github.event.repository.name }}/
   collapse-sidebar:
     description: 'Whether to collapse sidebar sections by default'
     required: false
@@ -46,7 +50,7 @@ runs:
       env:
         title: ${{ inputs.title }}
         description: ${{ inputs.description }}
-        base: /${{ github.event.repository.name }}/
+        base: ${{ inputs.base }}
         docsRepo: ${{ github.repository }}
         docsDir: ${{ inputs.docs-dir }}
         collapseSidebarSections: ${{ inputs.collapse-sidebar }}
