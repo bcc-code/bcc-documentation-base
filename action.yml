@@ -17,6 +17,10 @@ inputs:
     description: 'Which branch to use for "Edit this page on GitHub" links'
     required: false
     default: 'main'
+  collapse-sidebar:
+    description: 'Whether to collapse sidebar sections by default'
+    required: false
+    default: false
 runs:
   using: "composite"
   steps:
@@ -45,6 +49,7 @@ runs:
         base: /${{ github.event.repository.name }}/
         docsRepo: ${{ github.repository }}
         docsDir: ${{ inputs.docs-dir }}
+        collapseSidebarSections: ${{ inputs.collapse-sidebar }}
 
     - name: Build VuePress site
       shell: bash

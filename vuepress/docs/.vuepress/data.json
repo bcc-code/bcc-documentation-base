@@ -4,5 +4,6 @@
   "base": "/",
   "docsRepo": "bcc-code/bcc-documentation-base",
   "docsDir": "docs",
-  "branch": "main"
+  "branch": "main",
+  "collapseSidebarSections": false
 }

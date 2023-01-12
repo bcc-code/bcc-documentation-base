@@ -6,7 +6,7 @@ order: 10
 The documentation sites (like this one) use a custom [VuePress 2](https://v2.vuepress.vuejs.org/guide/) theme, based on the default theme. This means that any [Markdown plugins](https://v2.vuepress.vuejs.org/guide/markdown.html) used by VuePress and its default theme can also be used in your documentation.
 
 ## Sidebar navigation
-This theme will build a sidebar from the folder structure in your `docs` folder, with titles derived from the primary heading in each Markdown file.
+This theme will build a sidebar from the folder structure in your `docs` folder, with titles derived from the `title` property in the frontmatter or the primary heading in each Markdown file.
 
 To make it easy to control the order of pages in the sidebar, you can optionally add an `order` property to the page's [frontmatter](https://v2.vuepress.vuejs.org/guide/page.html#frontmatter).
 

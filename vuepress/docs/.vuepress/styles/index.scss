@@ -1,3 +1,6 @@
+$MQMobile: 719px !default;
+
+// Custom colors
 :root {
     // brand colors
     --c-brand: #004E48; // BCC Color 600
@@ -10,10 +13,41 @@ html.dark {
   --c-brand-light: #5CAB91; // Sinbad 400
 }
 
+// Overwrite default theme styles
 .site-name  {
   display: none;
 }
 
 .sidebar-heading {
   text-transform: capitalize;
+}
+
+// Custom styles for our features component
+.bcc-features {
+  display: flex;
+  margin-bottom: 2rem;
+  
+  h2 {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: $MQMobile) {
+  .home {
+    .bcc-features {
+      flex-direction: column;
+
+      h2 {
+        margin-bottom: 0;
+      }
+
+      p {
+        margin-top: 0.25rem;
+      }
+
+      .bcc-feature {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
 }

@@ -35,6 +35,7 @@ export const generateSidebar = (): SidebarConfig => {
         sidebar['/'].push({
             text: prettifyDirectoryName(directory),
             children: sortByPageOrder(filesInDirectory, currentDirectory).map(f => `/${directory}/${f}`),
+            collapsible: data.collapseSidebarSections,
         });
     });
 
