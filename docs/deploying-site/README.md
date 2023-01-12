@@ -60,6 +60,6 @@ jobs:
 ```
 :::
 
-Be sure to set the name and description of the repository. Generally it is advised to **not** prefix the name with "BCC".
+Be sure to set the name and description of the repository, the name will be used for the main section in the sidebar and in the `title` tag, the description will be set for the `meta` description tag.
 
 3. Push this to the main branch of the repository and your documentation site should be deployed to developer.bcc.no/repository-name/ 🎉
