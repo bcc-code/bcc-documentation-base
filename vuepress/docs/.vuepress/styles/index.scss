@@ -22,6 +22,10 @@ html.dark {
   text-transform: capitalize;
 }
 
+.home .hero .description {
+  max-width: 100%;
+}
+
 // Custom styles for our features component
 .bcc-features {
   display: flex;
