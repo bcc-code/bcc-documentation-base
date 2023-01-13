@@ -53,6 +53,7 @@ runs:
         base: ${{ inputs.base }}
         docsRepo: ${{ github.repository }}
         docsDir: ${{ inputs.docs-dir }}
+        docsBranch: ${{ inputs.branch }}
         collapseSidebarSections: ${{ inputs.collapse-sidebar }}
 
     - name: Build VuePress site

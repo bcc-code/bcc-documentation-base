@@ -27,6 +27,7 @@ export default defineUserConfig({
     repo: 'bcc-code',
     docsRepo: data.docsRepo,
     docsDir: data.docsDir,
+    docsBranch: data.docsBranch,
 
     navbar,
 
