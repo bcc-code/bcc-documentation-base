@@ -3,38 +3,85 @@
 // other folders get their own array
 import type { SidebarConfig } from '@vuepress/theme-default'
 import matter from 'gray-matter';
-import fs from 'fs';
 import glob from 'glob';
 import * as data from "../../data.json";
-import { readdirSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
+import { getDirname, path } from '@vuepress/utils';
+
+const __dirname = getDirname(import.meta.url);
+const docsDirectory = __dirname + '/../../../';
+
+type Directory = {
+    name: string,
+    path: string,
+    files: File[],
+}
+
+type File = {
+    name: string,
+    isIndex: boolean,
+    order: number,
+}
 
 export const generateSidebar = (): SidebarConfig => {
-    const sidebar = {};
+    const sidebar: SidebarConfig = {};
     sidebar['/'] = [];
 
-    // Add files in the base folder as the first section
-    let files = glob.sync(`*.md`, {
-        cwd: data.docsDir,
-    });
-    
-    sidebar['/'].push({
-        text: data.title,
-        children: sortByPageOrder(files).map(f => `/${f}`),
+    let files = glob.sync(`**/**.md`, {
+        cwd: docsDirectory,
+        mark: true,
     });
 
-    // Add other folders as their own sections
-    const directories = getDirectories(__dirname + '/../../../');
+    let rootDirectory: Directory = {
+        name: data.title,
+        path: '/',
+        files: [],
+    };
+    let directories: Directory[] = [];
 
-    directories.forEach(directory => {
-        const currentDirectory = `${data.docsDir}/${directory}`;
+    files.forEach(file => {
+        const splittedFilePath = file.split('/');
 
-        const filesInDirectory = glob.sync(`*.md`, {
-            cwd: currentDirectory,
+        // If it's a file in the root, add it to the root directory
+        if (splittedFilePath.length == 1) {
+            rootDirectory.files.push({
+                name: splittedFilePath[0],
+                isIndex: isIndexFile(splittedFilePath[0]),
+                order: getPageOrder('/', splittedFilePath[0]),
+            });
+            return;
+        }
+
+        // We're dealing with a file in a nested directory
+        let directory = directories.find(d => d.path == splittedFilePath[0]);
+
+        if (!directory) {
+            directory = {
+                name: prettifyDirectoryName(splittedFilePath[0]),
+                path: splittedFilePath[0],
+                files: [],
+            }
+            directories.push(directory);
+        }
+
+        directory.files.push({
+            name: splittedFilePath[1],
+            isIndex: isIndexFile(splittedFilePath[1]),
+            order: getPageOrder(splittedFilePath[0], splittedFilePath[1]),
         });
-        
+    });
+
+    // Add root directory to sidebar
+    sidebar['/'].push({
+        text: rootDirectory.name,
+        children: sortByPageOrder(rootDirectory).map(f => `/${f.name}`),
+    });
+
+    // Add all other directories to sidebar
+    directories.forEach(directory => {
         sidebar['/'].push({
-            text: prettifyDirectoryName(directory),
-            children: sortByPageOrder(filesInDirectory, currentDirectory).map(f => `/${directory}/${f}`),
+            text: directory.name,
+            children: sortByPageOrder(directory).map(f => `/${directory.path}/${f.name}`),
             collapsible: data.collapseSidebarSections,
         });
     });
@@ -42,30 +89,24 @@ export const generateSidebar = (): SidebarConfig => {
     return sidebar;
 }
 
-const getDirectories = source =>
-  readdirSync(source, { withFileTypes: true })
-    .filter(item => item.isDirectory() && !item.name.startsWith('.'))
-    .map(item => item.name);
+const isIndexFile = fileName => {
+    return fileName.toLowerCase().includes('readme') || fileName == 'index.md';
+}
 
-const sortByPageOrder = (array, currentDirectory: string|null = null) => {
-    return array.sort((a, b) => {
-        const pageOrderA = getPageOrder(a, currentDirectory);
-        const pageOrderB = getPageOrder(b, currentDirectory);
-        if (pageOrderA < pageOrderB) return -1;
-        if (pageOrderA > pageOrderB) return 1;
+const sortByPageOrder = (directory: Directory): File[] => {
+    return directory.files.sort((a, b) => {
+        if (a.order < b.order) return -1;
+        if (a.order > b.order) return 1;
         return 0;
     });
 }
 
-const getPageOrder = (filePath, currentDirectory: string|null = null) => {
-    if (filePath.toLowerCase().includes('readme') || filePath == 'index.md') {
+const getPageOrder = (directory, fileName) => {
+    if (isIndexFile(fileName)) {
         return -1;
     }
 
-    const path = currentDirectory ?
-        currentDirectory + '/' + filePath
-        : data.docsDir + '/' + filePath;
-    const fileContents = fs.readFileSync(path).toString();
+    const fileContents = readFileSync(docsDirectory + '/' + directory + '/' + fileName).toString();
     const frontmatter = matter(fileContents);
 
     if (frontmatter.data.order == null) {
