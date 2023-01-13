@@ -1,12 +1,9 @@
-// loop over files in docs folder excluding .vuepress
-// top level files are in data.title array
-// other folders get their own array
 import type { SidebarConfig } from '@vuepress/theme-default'
 import matter from 'gray-matter';
 import glob from 'glob';
 import * as data from "../../data.json";
-import { readFileSync, readdirSync } from 'fs'
-import { getDirname, path } from '@vuepress/utils';
+import { readFileSync, existsSync } from 'fs'
+import { getDirname } from '@vuepress/utils';
 
 const __dirname = getDirname(import.meta.url);
 const docsDirectory = __dirname + '/../../../';
@@ -15,6 +12,7 @@ type Directory = {
     name: string,
     path: string,
     files: File[],
+    order: number;
 }
 
 type File = {
@@ -36,6 +34,7 @@ export const generateSidebar = (): SidebarConfig => {
         name: data.title,
         path: '/',
         files: [],
+        order: -1,
     };
     let directories: Directory[] = [];
 
@@ -60,6 +59,7 @@ export const generateSidebar = (): SidebarConfig => {
                 name: prettifyDirectoryName(splittedFilePath[0]),
                 path: splittedFilePath[0],
                 files: [],
+                order: getSectionOrder(splittedFilePath[0])
             }
             directories.push(directory);
         }
@@ -74,14 +74,14 @@ export const generateSidebar = (): SidebarConfig => {
     // Add root directory to sidebar
     sidebar['/'].push({
         text: rootDirectory.name,
-        children: sortByPageOrder(rootDirectory).map(f => `/${f.name}`),
+        children: sortByOrderProperty(rootDirectory.files).map(f => `/${f.name}`),
     });
 
     // Add all other directories to sidebar
-    directories.forEach(directory => {
+    sortByOrderProperty(directories).forEach(directory => {
         sidebar['/'].push({
             text: directory.name,
-            children: sortByPageOrder(directory).map(f => `/${directory.path}/${f.name}`),
+            children: sortByOrderProperty(directory.files).map(f => `/${directory.path}/${f.name}`),
             collapsible: data.collapseSidebarSections,
         });
     });
@@ -93,12 +93,22 @@ const isIndexFile = fileName => {
     return fileName.toLowerCase().includes('readme') || fileName == 'index.md';
 }
 
-const sortByPageOrder = (directory: Directory): File[] => {
-    return directory.files.sort((a, b) => {
+const sortByOrderProperty = (array: Array<T>): Array<T> => {
+    return array.sort((a, b) => {
         if (a.order < b.order) return -1;
         if (a.order > b.order) return 1;
         return 0;
     });
+}
+
+const getSectionOrder = (directory) => {
+    let fileName = 'README.md';
+
+    if (existsSync(docsDirectory + '/' + directory + '/' + 'index.md')) {
+        fileName = 'index.md';
+    }
+
+    return getFrontmatterProperty(directory, fileName, 'sectionOrder', 999);
 }
 
 const getPageOrder = (directory, fileName) => {
@@ -106,14 +116,18 @@ const getPageOrder = (directory, fileName) => {
         return -1;
     }
 
+    return getFrontmatterProperty(directory, fileName, 'order', 999);
+}
+
+const getFrontmatterProperty = (directory, fileName, frontmatterProperty = 'order', defaultValue = 999) => {
     const fileContents = readFileSync(docsDirectory + '/' + directory + '/' + fileName).toString();
     const frontmatter = matter(fileContents);
 
-    if (frontmatter.data.order == null) {
-        return 999;
+    if (frontmatter.data[frontmatterProperty] == null) {
+        return defaultValue;
     }
 
-    return frontmatter.data.order;
+    return frontmatter.data[frontmatterProperty];
 }
 
 const prettifyDirectoryName = (name) => {

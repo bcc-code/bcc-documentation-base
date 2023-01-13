@@ -16,13 +16,20 @@ order: 1
 ---
 ```
 
-By default, any `README.md` or `index.md` file will get an order of `-1`, while files without an order will be sorted alphabetically.
-
 ::: tip
 Increment the order by tens, so from 10 to 20 to 30, to enable you to easily insert another file in the middle later without having to update all the other files.
 :::
 
+By default, any `README.md` or `index.md` file will get an order of `-1`, while files without an order will be sorted alphabetically.
+
+### Ordering sections
 Any subfolders will be added as a separate heading to the sidebar, with the name of the subfolder rendered in Title Case, and without any dashes `-` or underscores `_`.
+
+By addding a `sectionOrder` to a folder's `README.md` or `index.md`, the sections in the sidebar can be ordered. The section with files in the root of the `docs` folder will always be on top, and folders without a `sectionOrder` will be sorted alphabetically.
+
+::: tip
+There should always be an index file in the root of the `docs` folder, either named `README.md` or `index.md`. Never add both files to the same folder, as VuePress will be confused as to which one to treat as the homepage of the site.
+:::
 
 ## Writing Markdown
 Be sure to check the VuePress [documentation on Markdown](https://v2.vuepress.vuejs.org/guide/markdown.html) to view all syntax extensions on normal markdown available. 
@@ -61,7 +68,7 @@ With code
 :::
 
 ### Badges
-The default theme also includes a [Badge component](https://v2.vuepress.vuejs.org/reference/default-theme/components.html) by default.
+The default theme also includes a [Badge component](https://v2.vuepress.vuejs.org/reference/default-theme/components.html).
 
 ```md
 - VuePress - <Badge type="tip" text="v2" vertical="top" />
