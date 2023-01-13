@@ -102,13 +102,15 @@ const sortByOrderProperty = (array: Array<T>): Array<T> => {
 }
 
 const getSectionOrder = (directory) => {
-    let fileName = 'README.md';
-
-    if (existsSync(docsDirectory + '/' + directory + '/' + 'index.md')) {
-        fileName = 'index.md';
+    if (existsSync(docsDirectory + '/' + directory + '/' + 'README.md')) {
+        return getFrontmatterProperty(directory, 'README.md', 'sectionOrder');
     }
 
-    return getFrontmatterProperty(directory, fileName, 'sectionOrder', 999);
+    if (existsSync(docsDirectory + '/' + directory + '/' + 'index.md')) {
+        return getFrontmatterProperty(directory, 'index.md', 'sectionOrder');
+    }
+
+    return 999;
 }
 
 const getPageOrder = (directory, fileName) => {
@@ -116,7 +118,7 @@ const getPageOrder = (directory, fileName) => {
         return -1;
     }
 
-    return getFrontmatterProperty(directory, fileName, 'order', 999);
+    return getFrontmatterProperty(directory, fileName, 'order');
 }
 
 const getFrontmatterProperty = (directory, fileName, frontmatterProperty = 'order', defaultValue = 999) => {
