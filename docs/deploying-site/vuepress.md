@@ -27,6 +27,7 @@ Any subfolders will be added as a separate heading to the sidebar, with the name
 ## Writing Markdown
 Be sure to check the VuePress [documentation on Markdown](https://v2.vuepress.vuejs.org/guide/markdown.html) to view all syntax extensions on normal markdown available. 
 
+### Custom containers
 A powerful feature in the VuePress theme are the [custom containers](https://v2.vuepress.vuejs.org/reference/default-theme/markdown.html), which enable you to render blocks like this:
 
 ```md
@@ -58,3 +59,16 @@ Collapsable content.
 With code
 ```
 :::
+
+### Badges
+The default theme also includes a [Badge component](https://v2.vuepress.vuejs.org/reference/default-theme/components.html) by default.
+
+```md
+- VuePress - <Badge type="tip" text="v2" vertical="top" />
+- VuePress - <Badge type="warning" text="v2" vertical="middle" />
+- VuePress - <Badge type="danger" text="v2" vertical="bottom" />
+```
+
+- VuePress - <Badge type="tip" text="v2" vertical="top" />
+- VuePress - <Badge type="warning" text="v2" vertical="middle" />
+- VuePress - <Badge type="danger" text="v2" vertical="bottom" />
