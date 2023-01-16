@@ -28,7 +28,9 @@ html.dark {
 
 // Custom styles for our features component
 .bcc-features {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 1rem;
   margin-bottom: 2rem;
   
   h2 {
