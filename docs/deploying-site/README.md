@@ -19,9 +19,11 @@ Documentation can be published to GitHub Pages under [developer.bcc.no](https://
 name: Build and Deploy Documentation Site
 
 on:
-  # Runs on pushes targeting the default branch
+  # Runs on pushes to the docs folder targeting the default branch
   push:
     branches: ["master","main"]
+    paths:
+      - docs/**
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -63,3 +65,23 @@ jobs:
 Be sure to set the name and description of the repository, the name will be used for the main section in the sidebar and in the `title` tag, the description will be set for the `meta` description tag.
 
 3. Push this to the main branch of the repository and your documentation site should be deployed to developer.bcc.no/repository-name/ 🎉
+
+#### Using a different folder for documentation
+It is possible to use a different folder than `docs` for documentation. This can be configured by setting the `docs-dir` option in the action:
+```yml
+steps:
+  - name: Build documentation site
+    uses: bcc-code/bcc-documentation-base@v1
+    with:
+      ...
+      docs-dir: documentation
+```
+
+Remember to update the `paths` in the Action file as well so the documentation is built whenever files are changed in that folder (or omit `paths` to always run this action for every commit).
+```yml
+on:
+  push:
+    branches: ["master","main"]
+    paths:
+      - documentation/**
+```

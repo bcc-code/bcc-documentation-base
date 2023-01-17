@@ -19,13 +19,6 @@ Description of the generated website, used for the head meta tag
 Type: `string`
 
 Default: `${{ github.event.repository.description }}`
-
-### docs-dir
-Directory where the docs are located
-
-Type: `string`
-
-Default: `docs`
   
 ### branch
 Which branch to use for "Edit this page on GitHub" links
@@ -35,6 +28,13 @@ Type: `string`
 Default: `main`
 
 ## Advanced
+### docs-dir
+Directory where the docs are located
+
+Type: `string`
+
+Default: `docs`
+
 ### base
 The base url for the website
 
