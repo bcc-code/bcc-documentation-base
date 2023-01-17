@@ -41,6 +41,11 @@ export const generateSidebar = (): SidebarConfig => {
     files.forEach(file => {
         const splittedFilePath = file.split('/');
 
+        // If it's a file more than 1 level deep, we'll ignore it
+        if (splittedFilePath.length > 2) {
+            return;
+        }
+
         // If it's a file in the root, add it to the root directory
         if (splittedFilePath.length == 1) {
             rootDirectory.files.push({
@@ -103,14 +108,14 @@ const sortByOrderProperty = (array: Array<T>): Array<T> => {
 
 const getSectionOrder = (directory) => {
     if (existsSync(docsDirectory + '/' + directory + '/' + 'README.md')) {
-        return getFrontmatterProperty(directory, 'README.md', 'sectionOrder');
+        return getFrontmatterProperty(directory, 'README.md', 'sectionOrder', 1);
     }
 
     if (existsSync(docsDirectory + '/' + directory + '/' + 'index.md')) {
-        return getFrontmatterProperty(directory, 'index.md', 'sectionOrder');
+        return getFrontmatterProperty(directory, 'index.md', 'sectionOrder', 1);
     }
 
-    return 999;
+    return 1;
 }
 
 const getPageOrder = (directory, fileName) => {
