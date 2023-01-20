@@ -1,10 +1,14 @@
 import process from 'node:process'
 import { defineUserConfig } from '@vuepress/cli'
 import { shikiPlugin } from '@vuepress/plugin-shiki'
+import { registerComponentsPlugin } from '@vuepress/plugin-register-components'
 import { navbar } from './theme/navbar'
 import { bccCodeTheme } from './theme/theme'
 import * as data from "./data.json";
 import { generateSidebar } from './theme/helpers/generateSidebar';
+import { getDirname, path } from '@vuepress/utils'
+
+const __dirname = getDirname(import.meta.url)
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -43,5 +47,6 @@ export default defineUserConfig({
 
   plugins: [
     shikiPlugin({ theme: 'github-dark' }),
+    data.autoRegisterComponents ? registerComponentsPlugin({componentsDir: path.resolve(__dirname, `./source/${data.componentsDir}`)}) : [],
   ],
 })

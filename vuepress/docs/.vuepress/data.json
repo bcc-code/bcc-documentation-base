@@ -5,5 +5,7 @@
   "docsRepo": "bcc-code/bcc-documentation-base",
   "docsDir": "docs",
   "docsBranch": "main",
-  "collapseSidebarSections": false
+  "collapseSidebarSections": false,
+  "autoRegisterComponents": false,
+  "componentsDir": "src/components"
 }

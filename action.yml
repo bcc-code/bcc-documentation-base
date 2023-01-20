@@ -25,6 +25,14 @@ inputs:
     description: 'Whether to collapse sidebar sections by default'
     required: false
     default: false
+  auto-register-components:
+    description: 'Whether to automatically register Vue components'
+    required: false
+    default: false
+  components-dir:
+    description: 'The directory from where Vue components should automatically be registered'
+    required: false
+    default: 'src/components'
 runs:
   using: "composite"
   steps:
@@ -43,6 +51,8 @@ runs:
       run: |
         cd source
         cp -r ./${{ inputs.docs-dir }}/* $GITHUB_WORKSPACE/vuepress/docs/
+        mkdir $GITHUB_WORKSPACE/vuepress/docs/.vuepress/source/
+        cp -r ./* $GITHUB_WORKSPACE/vuepress/docs/.vuepress/source/
 
     - uses: microsoft/variable-substitution@v1
       with:
@@ -55,6 +65,8 @@ runs:
         docsDir: ${{ inputs.docs-dir }}
         docsBranch: ${{ inputs.branch }}
         collapseSidebarSections: ${{ inputs.collapse-sidebar }}
+        autoRegisterComponents: ${{ inputs.auto-register-components }}
+        componentsDir: ${{ inputs.components-dir }}
 
     - name: Build VuePress site
       shell: bash

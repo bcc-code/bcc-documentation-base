@@ -52,3 +52,17 @@ This can be useful when your documentation has a lot of different sidebar sectio
 Type: `boolean`
 
 Default: `false`
+
+### auto-register-components
+Whether to automatically register Vue components
+
+Type: `boolean`
+
+Default: `false`
+
+### components-dir
+The directory from where Vue components should automatically be registered
+
+Type: `string`
+
+Default: `src/components`
