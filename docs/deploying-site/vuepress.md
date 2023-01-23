@@ -5,6 +5,9 @@ order: 10
 
 The documentation sites (like this one) use a custom [VuePress 2](https://v2.vuepress.vuejs.org/guide/) theme, based on the default theme. This means that any [Markdown plugins](https://v2.vuepress.vuejs.org/guide/markdown.html) used by VuePress and its default theme can also be used in your documentation.
 
+## Index file
+There should always be an index file in the root of the `docs` folder, either named `README.md` or `index.md`. Never add both files to the same folder, as VuePress will be confused as to which one to treat as the homepage of the site.
+
 ## Sidebar navigation
 This theme will build a sidebar from the folder structure in your `docs` folder, with titles derived from the `title` property in the frontmatter or the primary heading in each Markdown file.
 
@@ -27,10 +30,6 @@ Any subfolders will be added as a separate heading to the sidebar, with the name
 
 By addding a `sectionOrder` to a folder's `README.md` or `index.md`, the sections in the sidebar can be ordered. The section with files in the root of the `docs` folder will always be on top, and folders without a `sectionOrder` will be sorted alphabetically.
 
-::: tip
-There should always be an index file in the root of the `docs` folder, either named `README.md` or `index.md`. Never add both files to the same folder, as VuePress will be confused as to which one to treat as the homepage of the site.
-:::
-
 ## Writing Markdown
 Be sure to check the VuePress [documentation on Markdown](https://v2.vuepress.vuejs.org/guide/markdown.html) to view all syntax extensions on normal markdown available. 
 
@@ -43,6 +42,7 @@ This is a tip
 :::
 ```
 
+**Output**:
 ::: tip
 This is a tip
 :::
@@ -59,6 +59,7 @@ Collapsable content.
 :::
 ```
 
+**Output**:
 ::: details Custom title
 Collapsable content.
 
