@@ -47,6 +47,6 @@ export default defineUserConfig({
 
   plugins: [
     shikiPlugin({ theme: 'github-dark' }),
-    data.autoRegisterComponents ? registerComponentsPlugin({componentsDir: path.resolve(__dirname, `./source/${data.componentsDir}`)}) : [],
+    data.autoRegisterComponents ? registerComponentsPlugin({componentsDir: path.resolve(__dirname, `./auto-register-components`)}) : [],
   ],
 })

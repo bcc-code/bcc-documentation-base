@@ -51,8 +51,8 @@ runs:
       run: |
         cd source
         cp -r ./${{ inputs.docs-dir }}/* $GITHUB_WORKSPACE/vuepress/docs/
-        mkdir $GITHUB_WORKSPACE/vuepress/docs/.vuepress/source/
-        cp -r ./* $GITHUB_WORKSPACE/vuepress/docs/.vuepress/source/
+        ${{ inputs.auto-register-components }} && mkdir $GITHUB_WORKSPACE/vuepress/docs/.vuepress/auto-register-components/
+        ${{ inputs.auto-register-components }} && cp -r ./${{ inputs.components-dir }}/* $GITHUB_WORKSPACE/vuepress/docs/.vuepress/auto-register-components/
 
     - uses: microsoft/variable-substitution@v1
       with:
@@ -66,7 +66,6 @@ runs:
         docsBranch: ${{ inputs.branch }}
         collapseSidebarSections: ${{ inputs.collapse-sidebar }}
         autoRegisterComponents: ${{ inputs.auto-register-components }}
-        componentsDir: ${{ inputs.components-dir }}
 
     - name: Build VuePress site
       shell: bash
