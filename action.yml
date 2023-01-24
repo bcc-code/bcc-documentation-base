@@ -53,6 +53,7 @@ runs:
         cp -r ./${{ inputs.docs-dir }}/* $GITHUB_WORKSPACE/vuepress/docs/
         ${{ inputs.auto-register-components }} && mkdir $GITHUB_WORKSPACE/vuepress/docs/.vuepress/auto-register-components/
         ${{ inputs.auto-register-components }} && cp -r ./${{ inputs.components-dir }}/* $GITHUB_WORKSPACE/vuepress/docs/.vuepress/auto-register-components/
+        true
 
     - uses: microsoft/variable-substitution@v1
       with:
