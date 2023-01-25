@@ -14,6 +14,7 @@ export const bccCodeTheme = (options: DefaultThemeOptions): Theme => {
 
     alias: {
       '@theme/HomeFeatures.vue': path.resolve(__dirname, './components/HomeFeatures.vue'),
+      '@theme/NavbarBrand.vue': path.resolve(__dirname, './components/NavbarBrand.vue'),
     },
   }
 };

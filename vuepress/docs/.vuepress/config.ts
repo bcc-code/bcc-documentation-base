@@ -25,7 +25,6 @@ export default defineUserConfig({
   ],
 
   theme: bccCodeTheme({
-    home: '/',
     logoDark: 'logoWhite.png',
     logo: 'logo.png',
     repo: 'bcc-code',
