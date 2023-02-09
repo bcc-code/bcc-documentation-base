@@ -74,7 +74,7 @@ runs:
         cd vuepress
         npm ci && npm run build
 
-    - name: zip built site
+    - name: Zip built site files
       shell: bash
       run: |
           cd vuepress/docs/.vuepress/dist
@@ -86,7 +86,7 @@ runs:
       run: |
         curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/bcc-code" | jq -r ".value" | echo -e "token=$(</dev/stdin)\n" >> $GITHUB_OUTPUT
           
-    - name: Send file to azure storage
+    - name: Upload files to azure storage
       shell: bash
       run: |
         curl --request POST --header "Authorization: Bearer ${{steps.token.outputs.token}}" --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip "https://ca-docsite-api.yellowdesert-519b15e9.westeurope.azurecontainerapps.io/UploadDoc"

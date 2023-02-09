@@ -25,19 +25,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Build documentation site
-        uses: bcc-code/bcc-documentation-base@v1
+      - name: Build documentation site and uploads it to Azure storage
+        uses: bcc-code/bcc-documentation-base@v2
         with:
           title: Documentation Guide
           description: Information on how to set up documentation for BCC projects
-        
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+          base: "/bcc-documentation-base/"
