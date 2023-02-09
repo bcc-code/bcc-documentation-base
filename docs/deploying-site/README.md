@@ -6,7 +6,11 @@ We recommend to use the following conventions when writing documentation:
 - Use the readme in the main folder only for information that is needed to run that project locally. Generally this kind of information is not interesting for people reading documentation about an API for example. If this information does need to be in the public documentation, link to the readme in the `docs` folder from the main readme.
 
 ### Publishing documentation
-Documentation can be published to GitHub Pages under [developer.bcc.no](https://developer.bcc.no) with VuePress. For this we have created a [custom theme](./vuepress/). To convert a `docs` folder into a VuePress site, follow these steps:
+Documentation can be published to GitHub Pages under [developer.bcc.no](https://developer.bcc.no) with VuePress. For this we have created a [custom theme](./vuepress/). To convert a `docs` folder into a VuePress site, follow these steps.
+
+::: tip HEADS UP
+Ensure your folder has an `index.md` or `README.md` file in it, otherwise there will be no `index.html` located at the root of your documentation site.
+:::
 
 1. Enable GitHub Pages in the settings of the repository. Be sure to select **GitHub Actions** as the `Source`, and check `Enforce HTTPS`. Then your settings should look like this:
 
