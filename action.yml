@@ -74,7 +74,7 @@ runs:
         cd vuepress
         npm ci && npm run build
 
-    - name: Zip built site files
+    - name: Zips built site files
       shell: bash
       run: |
           cd vuepress/docs/.vuepress/dist
