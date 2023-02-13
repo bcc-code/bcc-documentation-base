@@ -13,7 +13,7 @@ on:
 
 env: 
   ENV0_COMPONENT_NAME: api # To be modified, e.g. api or cms
-  dockerfile_folderpath: "services/backend/" # To be modified, e.g. path/to/folder/
+  dockerfile_folderpath: "auth-proxy/backend/" # To be modified, e.g. path/to/folder/
   acr: crbccplatformdev # To be modified, e.g. crbccplatformdev
 
 permissions:
@@ -56,7 +56,7 @@ jobs:
         
       - name: add appsettings.json
         run: |
-           cat > $GITHUB_WORKSPACE/services/backend/documentation-site/appsettings.json <<EOL
+           cat > $GITHUB_WORKSPACE/auth-proxy/backend/documentation-site/appsettings.json <<EOL
            ${{ vars.appsettings }}
            EOL
         
