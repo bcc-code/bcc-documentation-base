@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>BccCode.DocumentationSite</RootNamespace>
+	<UserSecretsId>d12cf6ba-df8e-4593-ade2-6b7dea93c808</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.8.2" />
+    <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.4.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.14.1" />
+    <PackageReference Include="IdentityServer4" Version="4.1.2" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.26.1">
+		  <TreatAsUsed>true</TreatAsUsed>
+	  </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.26.1" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.0.0-rc.1.23068.3" />
+  </ItemGroup>
+
+</Project>
