@@ -31,86 +31,102 @@ namespace BccCode.DocumentationSite.Models
             var path = httpContext.Request.Path.Value!;
             try
             {
-
-                #region container naming check
-                var containerName = path.Substring(path.IndexOf('/') + 1, path.IndexOf('/', 1) - 1);
-                if (containerName == null || containerName == "")
+                if (path == "/")
                 {
-                    httpContext.Response.StatusCode = 404;
-                    return; ;
-                }
-                if (!Regex.IsMatch(containerName, @"^[a-zA-Z0-9_.-]+$"))
-                {
-                    httpContext.Response.StatusCode = 404;
-                    return; ;
-                }
-                #endregion
-
-                #region user signin confirmation
-                if (httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString().IsNullOrEmpty())
-                {
-                    httpContext.Response.Redirect(new PathString("/.auth/login/github") + $"?post_login_redirect_uri={path}");
-                    return; ;
-                }
-                #endregion
-
-                #region authenticate user access
-                //Checks if repo exsists in the cache to skip the azure vault function needed to get a token for that repo
-                if (getmembers.GetUsersInRepo("", containerName).Result.IsNullOrEmpty())
-                {
-
-                    //Calling this method to get github token using the azure vault pem file
-                    string gitToken = await getmembers.GetTokenFromAzurePem();
-
-                    //Calling method to retrive users who have access to the repo
-                    var users = await getmembers.GetUsersInRepo(gitToken, containerName);
-
-                    //Checks if repo is not public (if list contains the element "404", repo is public)
-                    if (!(users.Contains(404)))
+                    string SASToken = await token.GetUserDelegationSasContainer("bcc-code-github-io");
+                    if (path.Contains('#'))
                     {
-                        //If the list is an empty list the repository doesnt exsists
-                        if (users.IsNullOrEmpty())
+                        path.Remove(path.IndexOf('#'));
+                    }
+                    if (path.EndsWith('/'))
+                    {
+                        path = path + "index.html";
+                    }
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(SASToken));
+                }
+                else
+                {
+
+                    #region container naming check
+                    var containerName = path.Substring(path.IndexOf('/') + 1, path.IndexOf('/', 1) - 1);
+                    if (containerName == null || containerName == "")
+                    {
+                        httpContext.Response.StatusCode = 404;
+                        return; ;
+                    }
+                    if (!Regex.IsMatch(containerName, @"^[a-zA-Z0-9_.-]+$"))
+                    {
+                        httpContext.Response.StatusCode = 404;
+                        return; ;
+                    }
+                    #endregion
+
+                    #region user signin confirmation
+                    if (httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString().IsNullOrEmpty())
+                    {
+                        httpContext.Response.Redirect(new PathString("/.auth/login/github") + $"?post_login_redirect_uri={path}");
+                        return; ;
+                    }
+                    #endregion
+
+                    #region authenticate user access
+                    //Checks if repo exsists in the cache to skip the azure vault function needed to get a token for that repo
+                    if (getmembers.GetUsersInRepo("", containerName).Result.IsNullOrEmpty())
+                    {
+
+                        //Calling this method to get github token using the azure vault pem file
+                        string gitToken = await getmembers.GetTokenFromAzurePem();
+
+                        //Calling method to retrive users who have access to the repo
+                        var users = await getmembers.GetUsersInRepo(gitToken, containerName);
+
+                        //Checks if repo is not public (if list contains the element "404", repo is public)
+                        if (!(users.Contains(404)))
                         {
-                            httpContext.Response.StatusCode = 403;
-                            return; ;
+                            //If the list is an empty list the repository doesnt exsists
+                            if (users.IsNullOrEmpty())
+                            {
+                                httpContext.Response.StatusCode = 403;
+                                return; ;
+                            }
+                            //Returns if the current logged user exsists whitin the list of allowed people
+                            else
+                            {
+                                if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                                {
+                                    httpContext.Response.StatusCode = 403;
+                                    return; ;
+                                }
+                            }
                         }
-                        //Returns if the current logged user exsists whitin the list of allowed people
-                        else
+                    }
+                    else
+                    {
+                        //Checks if cached repo is public or not
+                        if (!(await getmembers.GetUsersInRepo("", containerName)).Contains(404))
                         {
-                            if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                            //Checks if user exsists in the cached repo
+                            if (!(await getmembers.GetUsersInRepo("", containerName)).Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
                             {
                                 httpContext.Response.StatusCode = 403;
                                 return; ;
                             }
                         }
                     }
-                }
-                else
-                {
-                    //Checks if cached repo is public or not
-                    if (!(await getmembers.GetUsersInRepo("", containerName)).Contains(404))
-                    {
-                        //Checks if user exsists in the cached repo
-                        if (!(await getmembers.GetUsersInRepo("", containerName)).Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
-                        {
-                            httpContext.Response.StatusCode = 403;
-                            return; ;
-                        }
-                    }
-                }
-                #endregion
+                    #endregion
 
-                //Gets SAS token for container and adds it in the proxy
-                string SASToken = await token.GetUserDelegationSasContainer(containerName);
-                if (path.Contains('#'))
-                {
-                    path.Remove(path.IndexOf('#'));
+                    //Gets SAS token for container and adds it in the proxy
+                    string SASToken = await token.GetUserDelegationSasContainer(containerName);
+                    if (path.Contains('#'))
+                    {
+                        path.Remove(path.IndexOf('#'));
+                    }
+                    if (path.EndsWith('/'))
+                    {
+                        path = path + "index.html";
+                    }
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(SASToken));
                 }
-                if (path.EndsWith('/'))
-                {
-                    path = path + "index.html";
-                }
-                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(SASToken));
             }
             catch (Exception e)
             {
