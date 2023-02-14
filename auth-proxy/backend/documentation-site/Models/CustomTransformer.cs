@@ -28,6 +28,7 @@ namespace BccCode.DocumentationSite.Models
         {
             var credential = new DefaultAzureCredential();
             var storageUrl = new EnviromentVar(config).GetEnviromentVariable("StorageUrl");
+            var homePage = new EnviromentVar(config).GetEnviromentVariable("HomePageContainer");
             SASToken token = new SASToken(credential, storageUrl, cache);
             var path = httpContext.Request.Path.Value!;
             try
@@ -48,13 +49,17 @@ namespace BccCode.DocumentationSite.Models
                 #endregion
 
                 #region home page redirect
-                //Check if the container exsists else send you to home page
-                Uri container = new Uri(storageUrl + containerName);
-                BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
-                if (!(await blobcontainer.ExistsAsync()))
+                // replacing '.' with '-' to avoid naming errors in azure
+                if (containerName.Contains('.'))
                 {
-                    string HPSASToken = await token.GetUserDelegationSasContainer("bcc-code-github-io");
-                    path = "/bcc-code-github-io" + path;
+                    containerName = containerName.Replace('.', '-');
+                }
+
+                //Checks if container name is home page 
+                if (containerName == homePage)
+                {
+                    string HPSASToken = await token.GetUserDelegationSasContainer(containerName);
+                    path = $"/{containerName}{path.Substring(containerName.Length + 1)}";
                     if (path.Contains('#'))
                     {
                         path.Remove(path.IndexOf('#'));
@@ -67,6 +72,24 @@ namespace BccCode.DocumentationSite.Models
                     return; ;
                 }
 
+                //Check if the container exsists else send you to home page
+                Uri container = new Uri(storageUrl + containerName);
+                BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
+                if (!(await blobcontainer.ExistsAsync()))
+                {
+                    string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
+                    path = $"/{homePage}/";
+                    if (path.Contains('#'))
+                    {
+                        path.Remove(path.IndexOf('#'));
+                    }
+                    if (path.EndsWith('/'))
+                    {
+                        path = path + "index.html";
+                    }
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
+                    return; ;
+                }
                 #endregion
 
                 #region user signin confirmation
@@ -137,10 +160,11 @@ namespace BccCode.DocumentationSite.Models
             }
             catch (Exception e)
             {
+                //If referencing base root redirect to home page
                 if (e.Message.Contains("Length"))
                 {
-                    string SASToken = await token.GetUserDelegationSasContainer("bcc-code-github-io");
-                    path = "/bcc-code-github-io" + path;
+                    string SASToken = await token.GetUserDelegationSasContainer(homePage);
+                    path = $"/{homePage}/";
                     if (path.Contains('#'))
                     {
                         path.Remove(path.IndexOf('#'));
