@@ -103,6 +103,12 @@ namespace BccCode.DocumentationSite.Services
                 }
                 //Connecting to the Blob storage in azure
                 string uri = envVar.GetEnviromentVariable("StorageUrl");
+
+                // replacing '.' with '-' to avoid naming errors in azure
+                if (repo.Contains('.'))
+                {
+                    repo = repo.Replace('.', '-');
+                }
                 Uri container = new Uri(uri + repo);
                 BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
 

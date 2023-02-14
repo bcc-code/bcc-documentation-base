@@ -40,10 +40,6 @@ namespace BccCode.DocumentationSite.Controllers
                 }
                 else
                 {
-                    if (repo.Contains('.'))
-                    {
-                        repo.Replace('.', '-');
-                    }
                     return await _files.UploadPagesToStorage(repo, Docs);
                 }
             }
