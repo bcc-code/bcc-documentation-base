@@ -1,5 +1,6 @@
 using BccCode.DocumentationSite.Models;
 using BccCode.DocumentationSite.Services;
+using IdentityServer4.Extensions;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
 using System.Net;
@@ -119,7 +120,7 @@ app.UseEndpoints(endpoints =>
 });
 
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline. 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
