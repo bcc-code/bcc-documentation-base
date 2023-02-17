@@ -109,6 +109,13 @@ namespace BccCode.DocumentationSite.Services
                 {
                     repo = repo.Replace('.', '-');
                 }
+
+                //home page
+                if (repo == envVar.GetEnviromentVariable("HomePageContainer"))
+                {
+                    repo = "home";
+                }
+
                 Uri container = new Uri(uri + repo);
                 BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
 

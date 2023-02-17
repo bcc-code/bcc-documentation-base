@@ -28,7 +28,8 @@ namespace BccCode.DocumentationSite.Models
         {
             var credential = new DefaultAzureCredential();
             var storageUrl = new EnviromentVar(config).GetEnviromentVariable("StorageUrl");
-            var homePage = new EnviromentVar(config).GetEnviromentVariable("HomePageContainer");
+            //var homePage = new EnviromentVar(config).GetEnviromentVariable("HomePageContainer");
+            var homePage = "home";
             SASToken token = new SASToken(credential, storageUrl, cache);
             var path = httpContext.Request.Path.Value!;
             try
@@ -46,14 +47,15 @@ namespace BccCode.DocumentationSite.Models
                     httpContext.Response.StatusCode = 404;
                     return; ;
                 }
-                #endregion
 
-                #region home page redirect
                 // replacing '.' with '-' to avoid naming errors in azure
                 if (containerName.Contains('.'))
                 {
                     containerName = containerName.Replace('.', '-');
                 }
+                #endregion
+
+                #region home page redirect
 
                 //Checks if container name is home page 
                 if (containerName == homePage)

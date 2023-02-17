@@ -11,7 +11,7 @@
 
         public string GetEnviromentVariable(string varName)
         {
-            return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(varName)) ? Environment.GetEnvironmentVariable(varName)! : config[$"AppSettings:{varName}"];
+            return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(varName.ToUpper())) ? Environment.GetEnvironmentVariable(varName.ToUpper())! : config[$"AppSettings:{varName}"];
         }
     }
 }
