@@ -70,6 +70,7 @@ builder.Services.AddSingleton<IGetFiles, GetFiles>();
 builder.Services.AddSingleton<ISASToken, SASToken>();
 builder.Services.AddSingleton<EnviromentVar>();
 builder.Services.AddSingleton<CustomTransformer>();
+builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
 var app = builder.Build();
 

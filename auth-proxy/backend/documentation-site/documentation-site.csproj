@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>BccCode.DocumentationSite</RootNamespace>
 	<UserSecretsId>d12cf6ba-df8e-4593-ade2-6b7dea93c808</UserSecretsId>
+	<ApplicationInsightsResourceId>/subscriptions/20013da5-3851-4ff3-bc41-39512706ebb6/resourceGroups/docsite-dev/providers/microsoft.insights/components/docsite-env-insights</ApplicationInsightsResourceId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,7 @@
     <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.14.1" />
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
