@@ -1,4 +1,4 @@
-variable "environment" {
+variable "app_environment" {
   type = string
   default = "dev"
 }
@@ -15,7 +15,7 @@ variable "github_client_id" {
   default = ""
 }
 
-variable "env0_environment" {
+variable "platform_environment" {
   type    = string
   default = "dev"
 }

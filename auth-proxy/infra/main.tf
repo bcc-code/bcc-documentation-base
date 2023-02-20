@@ -41,22 +41,21 @@ provider "azuread" {
 data "azurerm_client_config" "current" {}
 
 locals {
-  location                 = "West Europe"
-  resource_group           = "docsite-dev"
-  resource_prefix          = "docsite"
-  platform_resource_prefix = "docsite"
-  storage_account_name     = replace(local.platform_resource_prefix, "-", "")
-  tags                     = {}
-  azurefile_name           = "pagebuilds"
-  volume_name              = "azure-files-volume"
-  shared_cr_fqdn           = "crbccplatform${var.env0_environment}.azurecr.io"
+  location             = "West Europe"
+  project_name         = "docsite"
+  resource_group       = "${local.project_name}-${var.app_environment}"
+  storage_account_name = replace(local.project_name, "-", "")
+  tags                 = {}
+  azurefile_name       = "pagebuilds"
+  volume_name          = "azure-files-volume"
+  shared_cr_fqdn       = "crbccplatform${var.platform_environment}.azurecr.io"
 }
 
 # Vault for OIDC JsonWebKey
 resource "azurerm_key_vault" "keyvault" {
-  name                        = lower(replace("${local.resource_prefix}-vault", "-", ""))
-  location                    = local.location
-  resource_group_name         = local.resource_group
+  name                        = lower(replace("${local.project_name}-vault", "-", ""))
+  location                    = data.azurerm_resource_group.main.location
+  resource_group_name         = data.azurerm_resource_group.main.name
   tenant_id                   = data.azurerm_client_config.current.tenant_id
   sku_name                    = "standard"
   purge_protection_enabled    = true
@@ -70,16 +69,16 @@ data "http" "myip" {
 
 # Get project resource group
 data "azurerm_resource_group" "main" {
-  name = "docsite-${var.environment}"
+  name = local.resource_group
 }
 
 
 # Analytics Workspace
 module "log_analytics_workspace" {
   source              = "./modules/azure/log_analytics"
-  name                = "${local.resource_prefix}-logs"
-  location            = local.location
-  resource_group_name = local.resource_group
+  name                = "${local.project_name}-logs"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
   tags                = local.tags
 
 }
@@ -87,9 +86,9 @@ module "log_analytics_workspace" {
 # Application Insights
 module "application_insights" {
   source              = "./modules/azure/application_insights"
-  name                = "${local.resource_prefix}-env-insights"
-  location            = local.location
-  resource_group_name = local.resource_group
+  name                = "${local.project_name}-env-insights"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
   tags                = local.tags
   application_type    = "web"
   workspace_id        = module.log_analytics_workspace.id
@@ -99,9 +98,9 @@ module "application_insights" {
 # # VLAN for Container Environment
 # module "container_apps_vlan" {
 #   source                           = "./modules/azure/container_apps_vlan"
-#   name                             = "${local.resource_prefix}-vlan"
-#   location                         = local.location
-#   resource_group_name              = local.resource_group
+#   name                             = "${local.project_name}-vlan"
+#   location                         = data.azurerm_resource_group.main.location
+#   resource_group_name              = data.azurerm_resource_group.main.name
 #   tags                             = local.tags
 
 #   depends_on = [
@@ -112,8 +111,8 @@ module "application_insights" {
 # Storage Account
 resource "azurerm_storage_account" "azurefiles" {
   name                            = "docsitestorageaccount"
-  resource_group_name             = local.resource_group
-  location                        = local.location
+  resource_group_name             = data.azurerm_resource_group.main.name
+  location                        = data.azurerm_resource_group.main.location
   account_replication_type        = "LRS"
   allow_nested_items_to_be_public = false
   default_to_oauth_authentication = true
@@ -217,8 +216,8 @@ resource "azapi_resource" "authconfig" {
 # Container Environment
 module "container_app_env" {
   source                   = "./modules/azure/container_app_env"
-  name                     = "${local.resource_prefix}-env"
-  location                 = local.location
+  name                     = "${local.project_name}-env"
+  location                 = data.azurerm_resource_group.main.location
   resource_group_id        = data.azurerm_resource_group.main.id
   tags                     = local.tags
   dapr_instrumentation_key = module.application_insights.instrumentation_key
@@ -250,7 +249,7 @@ module "api_container_app" {
           value = module.application_insights.connection_string
         },
         {
-          name = "github-provider-authentication-secret"
+          name  = "github-provider-authentication-secret"
           value = var.github_secret
         }
       ]
@@ -265,7 +264,7 @@ module "api_container_app" {
       containers = [
         {
           image = "${local.shared_cr_fqdn}/ca-docsite-api:latest"
-          name  = "${local.resource_prefix}-api"
+          name  = "${local.project_name}-api"
           env = [
             {
               name  = "APP_PORT"
