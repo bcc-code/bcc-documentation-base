@@ -1,4 +1,4 @@
-name: Deploy docsite api to Azure Container App
+name: Deploy docsite api to Azure Container App Development
 
 on:
 #  push:
