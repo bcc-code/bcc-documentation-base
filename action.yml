@@ -76,7 +76,7 @@ runs:
       shell: bash
       run: |
         cd vuepress
-        npm ci && npm run build ${{ inputs.debug-build && '-- --debug' || '' }}
+        npm ci && npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
 
     - name: Zips built site files
       shell: bash
