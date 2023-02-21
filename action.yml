@@ -1,5 +1,7 @@
 name: 'Build and Deploy Documentation Site'
 description: 'Convert Markdown documentation to a BCC documentation site'
+env:
+  debugEnabled: (secrets.ACTIONS_RUNNER_DEBUG == 'true' && secrets.ACTIONS_STEP_DEBUG == 'true') && 'true' || 'false'
 inputs:
   title:
     description: 'Title of the generated website'
@@ -69,10 +71,18 @@ runs:
         autoRegisterComponents: ${{ inputs.auto-register-components }}
 
     - name: Build VuePress site
+      if: env.debugEnabled != 'true'
       shell: bash
       run: |
         cd vuepress
         npm ci && npm run build
+
+    - name: Build VuePress site with DEBUGGING
+      if: env.debugEnabled == 'true'
+      shell: bash
+      run: |
+        cd vuepress
+        npm ci && npm run build -- --debug
 
     - name: Zips built site files
       shell: bash
