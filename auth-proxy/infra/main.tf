@@ -110,7 +110,7 @@ module "application_insights" {
 
 # Storage Account
 resource "azurerm_storage_account" "azurefiles" {
-  name                            = "docsitestorageaccount${var.app_environment}"
+  name                            = "docsstorageaccount${var.app_environment}"
   resource_group_name             = data.azurerm_resource_group.main.name
   location                        = data.azurerm_resource_group.main.location
   account_replication_type        = "LRS"
