@@ -33,6 +33,10 @@ inputs:
     description: 'The directory from where Vue components should automatically be registered'
     required: false
     default: 'src/components'
+  debug-build:
+    description: 'Whether or not to enable debugging for the Vite build'
+    required: false
+    default: false
 runs:
   using: "composite"
   steps:
@@ -72,7 +76,7 @@ runs:
       shell: bash
       run: |
         cd vuepress
-        npm ci && npm run build
+        npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
 
     - name: Zips built site files
       shell: bash

@@ -1,4 +1,4 @@
-name: Deploy docsite api to Azure Container App Development
+name: Deploy docsite api to Azure Container App Production
 
 on:
 #  push:
@@ -14,7 +14,7 @@ on:
 env: 
   ENV0_COMPONENT_NAME: api # To be modified, e.g. api or cms
   dockerfile_folderpath: "auth-proxy/backend/" # To be modified, e.g. path/to/folder/
-  acr: crbccplatformdev # To be modified, e.g. crbccplatformdev
+  acr: crbccplatformprod # To be modified, e.g. crbccplatformdev
 
 permissions:
   id-token: write
@@ -23,7 +23,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: dev # To be modified, e.g. dev, staging...
+    environment: prod # To be modified, e.g. dev, staging...
     
     steps:
       - name: Checkout to the branch
@@ -73,7 +73,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment: dev # To be modified, e.g. dev, staging...
+    environment: prod # To be modified, e.g. dev, staging...
 
     steps:
       - name: Azure Login
