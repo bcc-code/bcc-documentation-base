@@ -1,0 +1,91 @@
+name: Deploy docsite api to Azure Container App Production
+
+on:
+#  push:
+#    branches: 
+#      [ master ]
+#    paths:
+#    - '**'
+#    - '!infra/**'
+#    - '!.github/workflows/**'
+#    - '.github/workflows/docsite-dev.yml'
+  workflow_dispatch:
+
+env: 
+  ENV0_COMPONENT_NAME: api # To be modified, e.g. api or cms
+  dockerfile_folderpath: "auth-proxy/backend/" # To be modified, e.g. path/to/folder/
+  acr: crbccplatformprod # To be modified, e.g. crbccplatformdev
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: prod # To be modified, e.g. dev, staging...
+    
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v3
+        
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v2
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Getting Credentials for Azure Container Registry
+        id: acr
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "login<<EOF" >> $GITHUB_OUTPUT
+            echo "$(az acr login --name ${{ env.acr }} --expose-token)" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ fromJSON(steps.acr.outputs.login).loginServer }}
+          username: '00000000-0000-0000-0000-000000000000'
+          password: ${{ fromJSON(steps.acr.outputs.login).accessToken }}
+        
+      - name: add appsettings.json
+        run: |
+           cat > $GITHUB_WORKSPACE/auth-proxy/backend/documentation-site/appsettings.json <<EOL
+           ${{ vars.appsettings }}
+           EOL
+        
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v3
+        with:
+          context: ./${{ env.dockerfile_folderpath }}
+          push: true
+          tags: |
+            ${{ env.acr }}.azurecr.io/ca-${{ vars.APP_SLUG }}-${{ env.ENV0_COMPONENT_NAME }}:${{ github.sha }}
+            ${{ env.acr }}.azurecr.io/ca-${{ vars.APP_SLUG }}-${{ env.ENV0_COMPONENT_NAME }}:latest
+            
+            
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment: prod # To be modified, e.g. dev, staging...
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to containerapp
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az containerapp update -n ca-${{ vars.APP_SLUG }}-${{ env.ENV0_COMPONENT_NAME }} -g ${{ vars.APP_SLUG }}-${{ vars.APP_ENV }} --image ${{ env.acr }}.azurecr.io/ca-${{ vars.APP_SLUG }}-${{ env.ENV0_COMPONENT_NAME }}:${{ github.sha }} --set-env-vars OA_CLIENT_ID=${{ secrets.OA_CLIENT_ID }} OA_CLIENT_SECRET=${{ secrets.OA_CLIENT_SECRET }}
