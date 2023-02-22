@@ -81,8 +81,17 @@ namespace BccCode.DocumentationSite.Services
 
             #region Check if repo exsists in bcc-code
             //API call to check if repo exsists
-            var getRepoExsist = await client.GetAsync($"https://api.github.com/repos/bcc-code/{repo}");
-            var RepoExsist = await getRepoExsist.Content.ReadAsStringAsync();
+            string RepoExsist;
+            if (repo == "community-toolsyes")
+            {
+                var getRepoExsist = await client.GetAsync($"https://api.github.com/repos/bcc-code/community-tools");
+                RepoExsist = await getRepoExsist.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                var getRepoExsist = await client.GetAsync($"https://api.github.com/repos/bcc-code/{repo}");
+                RepoExsist = await getRepoExsist.Content.ReadAsStringAsync();
+            }
 
             //Checks if repo exsists
             if (RepoExsist.Contains("Not Found"))
@@ -114,6 +123,12 @@ namespace BccCode.DocumentationSite.Services
                 if (repo == envVar.GetEnviromentVariable("HomePageContainer"))
                 {
                     repo = "home";
+                }
+
+                //Discord page
+                if (repo == "community-toolsyes")
+                {
+                    repo = "Discord";
                 }
 
                 Uri container = new Uri(uri + repo);

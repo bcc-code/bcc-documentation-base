@@ -20,7 +20,7 @@ namespace BccCode.DocumentationSite.Controllers
         }
 
         [HttpPost]
-        public async Task<string> PushDocToContainer(IFormFile Docs)
+        public async Task<string> PushDocToContainer(IFormFile Docs, string discord = "")
         {
             try
             {
@@ -38,6 +38,13 @@ namespace BccCode.DocumentationSite.Controllers
                 {
                     return "Repository name is invalid!";
                 }
+                #region Discord endpoint
+                //Checks discord claim
+                if (discord == "yes" && repo == "community-tools")
+                {
+                    return await _files.UploadPagesToStorage((repo + discord), Docs);
+                }
+                #endregion
                 else
                 {
                     return await _files.UploadPagesToStorage(repo, Docs);
@@ -48,6 +55,5 @@ namespace BccCode.DocumentationSite.Controllers
                 return "Invalid token";
             }
         }
-
     }
 }
