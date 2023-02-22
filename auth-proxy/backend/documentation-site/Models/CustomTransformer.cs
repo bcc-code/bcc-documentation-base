@@ -28,7 +28,6 @@ namespace BccCode.DocumentationSite.Models
         {
             var credential = new DefaultAzureCredential();
             var storageUrl = new EnviromentVar(config).GetEnviromentVariable("StorageUrl");
-            //var homePage = new EnviromentVar(config).GetEnviromentVariable("HomePageContainer");
             var homePage = "home";
             SASToken token = new SASToken(credential, storageUrl, cache);
             var path = httpContext.Request.Path.Value!;
@@ -184,8 +183,18 @@ namespace BccCode.DocumentationSite.Models
                 //If referencing base root redirect to home page
                 if (e.Message.Contains("Length"))
                 {
-                    string SASToken = await token.GetUserDelegationSasContainer(homePage);
-                    path = $"/{homePage}/";
+                    string SASToken = "";
+                    if (!path.EndsWith("/"))
+                    {
+                        path = path + "/";
+                        var containerName = path.Substring(path.IndexOf('/') + 1, path.IndexOf('/', 1) - 1);
+                        SASToken = await token.GetUserDelegationSasContainer(containerName);
+                    }
+                    else if (SASToken == "" || !SASToken.Contains("?"))
+                    {
+                        path = $"/{homePage}/";
+                        SASToken = await token.GetUserDelegationSasContainer(homePage);
+                    }
                     if (path.Contains('#'))
                     {
                         path.Remove(path.IndexOf('#'));
