@@ -128,10 +128,10 @@ namespace BccCode.DocumentationSite.Services
                 //Discord page
                 if (repo == "community-toolsyes")
                 {
-                    repo = "Discord";
+                    repo = "discord";
                 }
 
-                Uri container = new Uri(uri + repo);
+                Uri container = new Uri(uri + repo.ToLower());
                 BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
 
                 //Creates the container if it doesnt allready exsists in the storage account
