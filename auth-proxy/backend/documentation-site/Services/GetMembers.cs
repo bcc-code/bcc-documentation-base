@@ -74,6 +74,11 @@ namespace BccCode.DocumentationSite.Services
         public Task<List<int>> GetUsersInRepo(string token = "", string repo = "")
         {
 
+            if (repo == "discord")
+            {
+                repo = "community-tools";
+            }
+
             if (token == "")
             {
                 //Checks if a cache for that repo exsist/expired else returns cached result
