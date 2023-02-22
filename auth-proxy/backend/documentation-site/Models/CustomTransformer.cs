@@ -94,6 +94,25 @@ namespace BccCode.DocumentationSite.Models
                 }
                 #endregion
 
+                #region discord page redirect
+                //Checks if container name is discord
+                if (containerName == "discord")
+                {
+                    string HPSASToken = await token.GetUserDelegationSasContainer(containerName);
+                    path = $"/{containerName}{path.Substring(containerName.Length + 1)}";
+                    if (path.Contains('#'))
+                    {
+                        path.Remove(path.IndexOf('#'));
+                    }
+                    if (path.EndsWith('/'))
+                    {
+                        path = path + "index.html";
+                    }
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
+                    return; ;
+                }
+                #endregion
+
                 #region user signin confirmation
                 if (httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString().IsNullOrEmpty())
                 {
