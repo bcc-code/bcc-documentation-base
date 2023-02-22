@@ -183,6 +183,12 @@ namespace BccCode.DocumentationSite.Services
                                         case ".css":
                                             blobSetting.ContentType = "text/css";
                                             break;
+                                        case ".webmanifest":
+                                            blobSetting.ContentType = "application/manifest+json";
+                                            break;
+                                        case ".xml":
+                                            blobSetting.ContentType = "application/xml";
+                                            break;
                                         default:
                                             blobSetting.ContentType = "application/octet-stream";
                                             break;
