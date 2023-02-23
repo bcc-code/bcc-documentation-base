@@ -35,6 +35,7 @@ namespace BccCode.DocumentationSite.Models
             {
 
                 #region container naming check
+                //Extract container name from the path which appears between the first and secound '/'
                 var containerName = path.Substring(path.IndexOf('/') + 1, path.IndexOf('/', 1) - 1);
                 if (containerName == null || containerName == "")
                 {
@@ -181,7 +182,7 @@ namespace BccCode.DocumentationSite.Models
             catch (Exception e)
             {
                 //If referencing base root redirect to home page
-                if (e.Message.Contains("Length"))
+                if (e.GetType() == (typeof (ArgumentOutOfRangeException)))
                 {
                     string SASToken = "";
                     if (!path.EndsWith("/"))
@@ -190,7 +191,7 @@ namespace BccCode.DocumentationSite.Models
                         var containerName = path.Substring(path.IndexOf('/') + 1, path.IndexOf('/', 1) - 1);
                         SASToken = await token.GetUserDelegationSasContainer(containerName);
                     }
-                    else if (SASToken == "" || !SASToken.Contains("?"))
+                    if (SASToken == "" || !SASToken.Contains("?"))
                     {
                         path = $"/{homePage}/";
                         SASToken = await token.GetUserDelegationSasContainer(homePage);

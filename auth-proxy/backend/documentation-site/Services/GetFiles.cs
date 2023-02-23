@@ -82,7 +82,7 @@ namespace BccCode.DocumentationSite.Services
             #region Check if repo exsists in bcc-code
             //API call to check if repo exsists
             string RepoExsist;
-            if (repo == "community-toolsyes")
+            if (repo == "community-toolsdiscord")
             {
                 var getRepoExsist = await client.GetAsync($"https://api.github.com/repos/bcc-code/community-tools");
                 RepoExsist = await getRepoExsist.Content.ReadAsStringAsync();
@@ -126,7 +126,7 @@ namespace BccCode.DocumentationSite.Services
                 }
 
                 //Discord page
-                if (repo == "community-toolsyes")
+                if (repo == "community-toolsdiscord")
                 {
                     repo = "discord";
                 }
