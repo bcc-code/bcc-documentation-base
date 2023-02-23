@@ -9,8 +9,21 @@ The documentation sites (like this one) use a custom [VuePress 2](https://v2.vue
 There should always be an index file in the root of the `docs` folder, either named `README.md` or `index.md`. Never add both files to the same folder, as VuePress will be confused as to which one to treat as the homepage of the site.
 
 ## Sidebar navigation
-This theme will build a sidebar from the folder structure in your `docs` folder, with titles derived from the `title` property in the frontmatter or the primary heading in each Markdown file.
+This theme will build a sidebar from the folder structure in your `docs` folder.
 
+### Title
+The page title in the sidebar is derived from the `title` property in the frontmatter or the primary heading in each Markdown file.
+```md
+---
+title: My Page
+---
+```
+or
+```md
+# My page
+```
+
+### Order
 To make it easy to control the order of pages in the sidebar, you can optionally add an `order` property to the page's [frontmatter](https://v2.vuepress.vuejs.org/guide/page.html#frontmatter).
 
 ```md
