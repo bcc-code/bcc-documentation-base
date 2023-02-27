@@ -84,7 +84,7 @@ runs:
           cd vuepress/docs/.vuepress/dist
           zip -r Docs.zip *
         
-    - name: Get Token from github
+    - name: Get Token from GitHub
       id: token
       shell: bash
       run: |
