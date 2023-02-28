@@ -48,7 +48,7 @@ namespace BccCode.DocumentationSite.Models
                     }
                     string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
                     var test = storageUrl + homePage + "/";
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(test, path, new QueryString());//, new QueryString(HPSASToken));
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(test, path, new QueryString(HPSASToken));
                     return;
                 }
             }
