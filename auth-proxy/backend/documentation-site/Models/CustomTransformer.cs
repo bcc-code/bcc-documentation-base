@@ -9,6 +9,8 @@ using System;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Transforms;
 
 namespace BccCode.DocumentationSite.Models
 {
@@ -33,64 +35,81 @@ namespace BccCode.DocumentationSite.Models
             var path = httpContext.Request.Path.Value!;
             try
             {
-
-                #region container naming check
-                //Extract container name from the path which appears between the first and secound '/'
-                var containerName = path.Substring(path.IndexOf('/') + 1, path.IndexOf('/', 1) - 1);
-                if (containerName == null || containerName == "")
+                if (destinationPrefix == (storageUrl + homePage + "/"))
                 {
-                    httpContext.Response.StatusCode = 404;
-                    return; ;
+                    //Appending the index.html to the sub path in case the subpath isnt refering to a file whitin the container
+                    if (!path.Contains(".") && !path.EndsWith("/"))
+                    {
+                        path = path + "/index.html";
+                    }
+                    else if (!path.Contains(".") && path.EndsWith("/"))
+                    {
+                        path = path + "index.html";
+                    }
+                    string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
+                    var test = storageUrl + homePage + "/";
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(test, path, new QueryString());//, new QueryString(HPSASToken));
+                    return;
                 }
+            }
+            catch (Exception e)
+            {
+                return;
+            }
+
+
+            try
+            {
+                #region container naming check
+                //Extract container name from the path which appears after the first '/' in the path
+                var containerName = path.Split('/')[1];
+                if (containerName.IsNullOrEmpty())
+                {
+                    containerName = homePage;
+                }
+                //Does input validation for the container name
                 if (!Regex.IsMatch(containerName, @"^[a-zA-Z0-9_.-]+$"))
                 {
                     httpContext.Response.StatusCode = 404;
-                    return; ;
+                    return;
                 }
 
-                // replacing '.' with '-' to avoid naming errors in azure
+                // replacing '.' with '-' to avoid naming errors in azure storage
                 if (containerName.Contains('.'))
                 {
                     containerName = containerName.Replace('.', '-');
                 }
                 #endregion
 
-                #region home page redirect
+                #region SubPath check
+                //The path after the container name
+                var subPath = string.Join('/', path.Split("/").Skip(2));
 
+                //Appending the index.html to the sub path in case the subpath isnt refering to a file whitin the container
+                if (!subPath.Contains(".") && !subPath.EndsWith("/"))
+                {
+                    subPath = subPath + "/index.html";
+                }
+                else if (!subPath.Contains(".") && subPath.EndsWith("/"))
+                {
+                    subPath = subPath + "index.html";
+                }
+                #endregion
+
+                #region home page redirect
                 //Checks if container name is home page 
                 if (containerName == homePage)
                 {
                     string HPSASToken = await token.GetUserDelegationSasContainer(containerName);
-                    path = $"/{containerName}{path.Substring(containerName.Length + 1)}";
-                    if (path.Contains('#'))
-                    {
-                        path.Remove(path.IndexOf('#'));
-                    }
-                    if (path.EndsWith('/'))
-                    {
-                        path = path + "index.html";
-                    }
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
-                    return; ;
-                }
-
-                //Check if the container exsists else send you to home page
-                Uri container = new Uri(storageUrl + containerName);
-                BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
-                if (!(await blobcontainer.ExistsAsync()))
-                {
-                    string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
-                    path = $"/{homePage}/";
-                    if (path.Contains('#'))
-                    {
-                        path.Remove(path.IndexOf('#'));
-                    }
-                    if (path.EndsWith('/'))
-                    {
-                        path = path + "index.html";
-                    }
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
-                    return; ;
+                    if (subPath.StartsWith("/"))
+                        path = $"/{homePage}{subPath}";
+                    else
+                        path = $"/{homePage}/{subPath}";
+                    var test = storageUrl + homePage + "/";
+                    if (!subPath.StartsWith("/"))
+                        subPath = "/" + subPath;
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(test , subPath, new QueryString(HPSASToken));
+                    return;
                 }
                 #endregion
 
@@ -98,18 +117,27 @@ namespace BccCode.DocumentationSite.Models
                 //Checks if container name is discord
                 if (containerName == "discord")
                 {
-                    string HPSASToken = await token.GetUserDelegationSasContainer(containerName);
-                    path = $"/{containerName}{path.Substring(containerName.Length + 1)}";
-                    if (path.Contains('#'))
-                    {
-                        path.Remove(path.IndexOf('#'));
-                    }
-                    if (path.EndsWith('/'))
-                    {
-                        path = path + "index.html";
-                    }
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
+                    string DSASToken = await token.GetUserDelegationSasContainer(containerName);
+                    if (subPath.StartsWith("/"))
+                        path = $"/discord{subPath}";
+                    else
+                        path = $"/discord/{subPath}";
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(DSASToken));
                     return; ;
+                }
+                #endregion
+
+                #region Container Check
+                //Check if the container exsists else send you to home page 404 page
+                Uri container = new Uri(storageUrl + containerName);
+                BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
+                if (!(await blobcontainer.ExistsAsync()))
+                {
+                    string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
+                    path = $"/{homePage}/404.html";
+
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
+                    return;
                 }
                 #endregion
 
@@ -122,8 +150,8 @@ namespace BccCode.DocumentationSite.Models
                 #endregion
 
                 #region authenticate user access
-                //Checks if repo exsists in the cache to skip the azure vault function needed to get a token for that repo
-                if (getmembers.GetUsersInRepo("", containerName).Result.IsNullOrEmpty())
+                //Checks if repository members exsists in the cache
+                if ((await getmembers.GetUsersInRepo("", containerName)).IsNullOrEmpty())
                 {
 
                     //Calling this method to get github token using the azure vault pem file
@@ -169,10 +197,10 @@ namespace BccCode.DocumentationSite.Models
 
                 //Gets SAS token for container and adds it in the proxy
                 string SASToken = await token.GetUserDelegationSasContainer(containerName);
-                if (path.Contains('#'))
-                {
-                    path.Remove(path.IndexOf('#'));
-                }
+                //if (path.Contains('#'))
+                //{
+                //    path.Remove(path.IndexOf('#'));
+                //}
                 if (path.EndsWith('/'))
                 {
                     path = path + "index.html";
@@ -182,13 +210,13 @@ namespace BccCode.DocumentationSite.Models
             catch (Exception e)
             {
                 //If referencing base root redirect to home page
-                if (e.GetType() == (typeof (ArgumentOutOfRangeException)))
+                if (e.GetType() == (typeof (ArgumentNullException)))
                 {
                     string SASToken = "";
                     if (!path.EndsWith("/"))
                     {
                         path = path + "/";
-                        var containerName = path.Substring(path.IndexOf('/') + 1, path.IndexOf('/', 1) - 1);
+                        var containerName = path.Split('/')[1];
                         SASToken = await token.GetUserDelegationSasContainer(containerName);
                     }
                     if (SASToken == "" || !SASToken.Contains("?"))

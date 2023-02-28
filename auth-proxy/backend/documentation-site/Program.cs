@@ -3,6 +3,7 @@ using BccCode.DocumentationSite.Services;
 using IdentityServer4.Extensions;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using Yarp.ReverseProxy.Forwarder;
 
@@ -105,16 +106,20 @@ app.UseEndpoints(endpoints =>
 
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
-        var error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl"), httpClient, requestConfig, transformer!);
+        ForwarderError error;
+        if (httpContext.Request.Path.StartsWithSegments(new PathString("/home")) || httpContext.Request.Path.Value == "/")
+        {
+            var p = "/" + string.Join('/', httpContext.Request.Path.Value!.Split("/").Skip(2));
+            httpContext.Request.Path = p;
+            error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl") + "home/", httpClient, requestConfig, transformer!);
+        }
+        else
+          error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl"), httpClient, requestConfig, transformer!);
         // Check if the operation was successful
         if (error != ForwarderError.None)
         {
             var errorFeature = httpContext.GetForwarderErrorFeature();
             var exception = errorFeature!.Exception;
-        }
-        if (httpContext.Response.Headers.Values.Contains("BlobNotFound"))
-        {
-            httpContext.Response.StatusCode = 404;
         }
     });
 });
