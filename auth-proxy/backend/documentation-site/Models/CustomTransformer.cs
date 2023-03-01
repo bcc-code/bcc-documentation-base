@@ -16,12 +16,10 @@ namespace BccCode.DocumentationSite.Models
 {
     public class CustomTransformer : HttpTransformer
     {
-        private readonly IConfiguration config;
         private readonly IMemoryCache cache;
         private readonly IGetMembersInterface getmembers;
-        public CustomTransformer(IConfiguration config, IMemoryCache cache, IGetMembersInterface getmembers)
+        public CustomTransformer(IMemoryCache cache, IGetMembersInterface getmembers)
         {
-            this.config = config;
             this.cache = cache;
             this.getmembers = getmembers;
         }
@@ -29,18 +27,19 @@ namespace BccCode.DocumentationSite.Models
         public override async ValueTask TransformRequestAsync(HttpContext httpContext,HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             var credential = new DefaultAzureCredential();
-            var storageUrl = new EnviromentVar(config).GetEnviromentVariable("StorageUrl");
-            var homePage = "home";
-            SASToken token = new SASToken(credential, storageUrl, cache);
+            SASToken token = new SASToken(credential, destinationPrefix, cache);
+
             var path = httpContext.Request.Path.Value!;
+            //Extract container name from the path which appears after the first '/' in the path
+            var containerName = path.Split('/')[1];
+            //The path after the container name
+            var subPath = "/" + string.Join('/', path.Split("/").Skip(2));
             try
             {
                 #region container naming check
-                //Extract container name from the path which appears after the first '/' in the path
-                var containerName = path.Split('/')[1];
                 if (containerName.IsNullOrEmpty())
                 {
-                    containerName = homePage;
+                    containerName = "home";
                 }
                 //Does input validation for the container name
                 if (!Regex.IsMatch(containerName, @"^[a-zA-Z0-9_.-]+$"))
@@ -48,7 +47,6 @@ namespace BccCode.DocumentationSite.Models
                     httpContext.Response.StatusCode = 404;
                     return;
                 }
-
                 // replacing '.' with '-' to avoid naming errors in azure storage
                 if (containerName.Contains('.'))
                 {
@@ -56,10 +54,81 @@ namespace BccCode.DocumentationSite.Models
                 }
                 #endregion
 
-                #region SubPath check
-                //The path after the container name
-                var subPath = string.Join('/', path.Split("/").Skip(2));
+                //Checking if endpoint is discord or the home page to skip user authentication
+                if (containerName != "home" && containerName != "discord")
+                {
+                    #region Container Check
+                    //Gets List of the containers that exsist in the storage account
+                    var containerList = await token.GetContainersList();
+                    //Check if the container exsists else send you to home page
+                    if (!containerList.Contains(containerName))
+                    {
+                        string HPSASToken = await token.GetUserDelegationSasContainer("home");
+                        path = $"/home{path}";
+                        proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(HPSASToken));
+                        return;
+                    }
+                    #endregion
 
+                    #region user signin confirmation
+                    if (httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString().IsNullOrEmpty())
+                    {
+                        httpContext.Response.Redirect(new PathString("/.auth/login/github") + $"?post_login_redirect_uri={path}");
+                        return;
+                    }
+                    #endregion
+
+                    #region authenticate user access
+                    //Gets the cached list of users who have access to the repository
+                    var usersInRepo = await getmembers.GetUsersInRepo("", containerName);
+
+                    //Checks if repository members exsists in the cache
+                    if (usersInRepo.IsNullOrEmpty())
+                    {
+
+                        //Calling this method to get github token using the azure vault pem file
+                        string gitToken = await getmembers.GetTokenFromAzurePem();
+
+                        //Calling method to retrive users who have access to the repo
+                        var users = await getmembers.GetUsersInRepo(gitToken, containerName);
+
+                        //Checks if repo is not public (if list contains the element "404", repo is public)
+                        if (!(users.Contains(404)))
+                        {
+                            //If the list is an empty list the repository doesnt exsists
+                            if (users.IsNullOrEmpty())
+                            {
+                                httpContext.Response.StatusCode = 403;
+                                return;
+                            }
+                            //Returns if the current logged user exsists whitin the list of allowed people
+                            else
+                            {
+                                if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                                {
+                                    httpContext.Response.StatusCode = 403;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //Checks if cached repo is public or not
+                        if (!usersInRepo.Contains(404))
+                        {
+                            //Checks if user exsists in the cached repo
+                            if (!usersInRepo.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                            {
+                                httpContext.Response.StatusCode = 403;
+                                return;
+                            }
+                        }
+                    }
+                    #endregion
+                }
+
+                #region SubPath check
                 //Appending the index.html to the sub path in case the subpath isnt refering to a file whitin the container
                 if (!subPath.Contains(".") && !subPath.EndsWith("/"))
                 {
@@ -71,143 +140,18 @@ namespace BccCode.DocumentationSite.Models
                 }
                 #endregion
 
-                #region home page redirect
-                //Checks if container name is home page 
-                if (containerName == homePage)
-                {
-                    string HPSASToken = await token.GetUserDelegationSasContainer(containerName);
-                    if (subPath.StartsWith("/"))
-                        path = $"/{homePage}{subPath}";
-                    else
-                        path = $"/{homePage}/{subPath}";
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl , path, new QueryString(HPSASToken));
-                    return;
-                }
-                #endregion
-
-                #region discord page redirect
-                //Checks if container name is discord
-                if (containerName == "discord")
-                {
-                    string DSASToken = await token.GetUserDelegationSasContainer(containerName);
-                    if (subPath.StartsWith("/"))
-                        path = $"/discord{subPath}";
-                    else
-                        path = $"/discord/{subPath}";
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(DSASToken));
-                    return; ;
-                }
-                #endregion
-
-                #region Container Check
-                //Gets List of the containers that exsist in the storage account
-                var containerList = await token.GetContainersList();
-                //Check if the container exsists else send you to home page
-                if (!containerList.Contains(containerName))
-                {
-                    string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
-                    path = $"/{homePage}{path}";
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
-                    return;
-                }
-                #endregion
-
-                #region user signin confirmation
-                if (httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString().IsNullOrEmpty())
-                {
-                    httpContext.Response.Redirect(new PathString("/.auth/login/github") + $"?post_login_redirect_uri={path}");
-                    return; ;
-                }
-                #endregion
-
-                #region authenticate user access
-                //Checks if repository members exsists in the cache
-                if ((await getmembers.GetUsersInRepo("", containerName)).IsNullOrEmpty())
-                {
-
-                    //Calling this method to get github token using the azure vault pem file
-                    string gitToken = await getmembers.GetTokenFromAzurePem();
-
-                    //Calling method to retrive users who have access to the repo
-                    var users = await getmembers.GetUsersInRepo(gitToken, containerName);
-
-                    //Checks if repo is not public (if list contains the element "404", repo is public)
-                    if (!(users.Contains(404)))
-                    {
-                        //If the list is an empty list the repository doesnt exsists
-                        if (users.IsNullOrEmpty())
-                        {
-                            httpContext.Response.StatusCode = 403;
-                            return; ;
-                        }
-                        //Returns if the current logged user exsists whitin the list of allowed people
-                        else
-                        {
-                            if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
-                            {
-                                httpContext.Response.StatusCode = 403;
-                                return; ;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //Checks if cached repo is public or not
-                    if (!(await getmembers.GetUsersInRepo("", containerName)).Contains(404))
-                    {
-                        //Checks if user exsists in the cached repo
-                        if (!(await getmembers.GetUsersInRepo("", containerName)).Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
-                        {
-                            httpContext.Response.StatusCode = 403;
-                            return; ;
-                        }
-                    }
-                }
-                #endregion
-
                 #region redirect to documentation page
                 //Gets SAS token for container and adds it in the proxy
                 string SASToken = await token.GetUserDelegationSasContainer(containerName);
-                if (subPath.StartsWith("/"))
-                    path = $"/{containerName}{subPath}";
-                else
-                    path = $"/{containerName}/{subPath}";
-                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(SASToken));
+                path = $"/{containerName}{subPath}";
+                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(SASToken));
                 #endregion
 
             }
             catch (Exception e)
             {
-                //If referencing base root redirect to home page
-                if (e.GetType() == (typeof (ArgumentNullException)))
-                {
-                    string SASToken = "";
-                    if (!path.EndsWith("/"))
-                    {
-                        path = path + "/";
-                        var containerName = path.Split('/')[1];
-                        SASToken = await token.GetUserDelegationSasContainer(containerName);
-                    }
-                    if (SASToken == "" || !SASToken.Contains("?"))
-                    {
-                        path = $"/{homePage}/";
-                        SASToken = await token.GetUserDelegationSasContainer(homePage);
-                    }
-                    if (path.Contains('#'))
-                    {
-                        path.Remove(path.IndexOf('#'));
-                    }
-                    if (path.EndsWith('/'))
-                    {
-                        path = path + "index.html";
-                    }
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(SASToken));
-                }
-                else
-                httpContext.Response.StatusCode = 400;
+                httpContext.Response.Redirect(new PathString("/home/404.html"));
             }
-           
         }
     }
 }

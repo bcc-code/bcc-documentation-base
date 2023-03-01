@@ -66,7 +66,7 @@ namespace BccCode.DocumentationSite.Services
                     var token = headerAndPayload + "." + Base64UrlEncoder.Encode(signature.Signature);
                     #endregion
 
-                    c.SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+                    c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
                     return token;
                 });
         }
@@ -74,15 +74,10 @@ namespace BccCode.DocumentationSite.Services
         public Task<List<int>> GetUsersInRepo(string token = "", string repo = "")
         {
 
-            if (repo == "discord")
-            {
-                repo = "community-tools";
-            }
-
             if (token == "")
             {
                 //Checks if a cache for that repo exsist/expired else returns cached result
-                if (!(_cache.TryGetValue(repo + "getMembers", out users)))
+                _cache.TryGetValue(repo + "getMembers", out users);
                 return Task.FromResult(users);
             }
 
@@ -113,103 +108,93 @@ namespace BccCode.DocumentationSite.Services
 
                 #region Checks for valid repo
 
-                //API call to check if repo exsists
+                //API call to check repo properties
                 var getRepoState = await client.GetAsync($"https://api.github.com/repos/bcc-code/{repo}");
                 var repoState = await getRepoState.Content.ReadAsStringAsync();
 
-                //Checks if repo exsists to avoid exceptions
-                if (repoState.Contains("error") || repoState.Contains("Not Found"))
-                {
-                    return new List<int>();
-                }
-                else
-                {
-                    //Gets visibility of repo
-                    MemberUrl? visibility = (MemberUrl?)JsonSerializer.Deserialize(repoState, typeof(MemberUrl));
+                //Gets visibility of repo
+                MemberUrl? visibility = (MemberUrl?)JsonSerializer.Deserialize(repoState, typeof(MemberUrl));
 
-                    if (visibility!.visibility!.Contains("public"))
-                    {
-                        //If repo is public returns an array of size 1 with a 404 element
-                        return (new List<int>(){ 404 });
-                    }
-                    #endregion
+                if (visibility!.visibility!.Contains("public"))
+                {
+                    //If repo is public returns an array of size 1 with a 404 element
+                    return new List<int>(){ 404 };
+                }
+                    #endregion 
 
                 #region installation api calls
-                    else
+                else
+                {
+                    //Getting contributors of the repo
+                    var getInstallCont = await client.GetAsync($"https://api.github.com/repos/bcc-code/{repo}/contributors");
+                    var installCont = await getInstallCont.Content.ReadAsStringAsync();
+
+                    Members[]? parsedJson = (Members[]?)JsonSerializer.Deserialize(installCont, typeof(Members[]));
+
+                    //Initialization of the users list
+                    users = new List<int>();
+
+                    //Adding contributors to the users list
+                    foreach (var login in parsedJson!)
                     {
-                        //Getting contributors of the repo
-                        var getInstallCont = await client.GetAsync($"https://api.github.com/repos/bcc-code/{repo}/contributors");
-                        var installCont = await getInstallCont.Content.ReadAsStringAsync();
+                        users.Add(login.id);
+                    }
 
-                        Members[]? parsedJson = (Members[]?)JsonSerializer.Deserialize(installCont, typeof(Members[]));
+                    //Getting teams members api
+                    var getInstallTeam = await client.GetAsync($"https://api.github.com/repos/bcc-code/{repo}/teams");
+                    var installTeam = await getInstallTeam.Content.ReadAsStringAsync();
+                    MemberUrl[]? parsedMemberurl = (MemberUrl[]?)JsonSerializer.Deserialize(installTeam, typeof(MemberUrl[]));
 
-                        //Initialization of the users list
-                        users = new List<int>();
-
-                        //Adding contributors to the users list
-                        foreach (var login in parsedJson!)
-                        {
-                            users.Add(login.id);
-                        }
-
-                        //Getting teams members api
-                        var getInstallTeam = await client.GetAsync($"https://api.github.com/repos/bcc-code/{repo}/teams");
-                        var installTeam = await getInstallTeam.Content.ReadAsStringAsync();
-                        MemberUrl[]? parsedMemberurl = (MemberUrl[]?)JsonSerializer.Deserialize(installTeam, typeof(MemberUrl[]));
-
-                        //Extracting the team members api url
-                        foreach (var url in parsedMemberurl!)
-                        {
-                            url.members_url = url?.members_url?.Replace("{/member}", "");
-                        }
-                        #endregion
+                    //Extracting the team members api url
+                    foreach (var url in parsedMemberurl!)
+                    {
+                        url.members_url = url?.members_url?.Replace("{/member}", "");
+                    }
+                 #endregion
 
                 #region members api
-                        //Calling all the teams api to retrive all thier members
-                        foreach (var url in parsedMemberurl)
-                        {
-                            var getInstallMembers = await client.GetAsync(url.members_url);
-                            var installMembers = await getInstallMembers.Content.ReadAsStringAsync();
-                            parsedJson = (Members[]?)JsonSerializer.Deserialize(installMembers, typeof(Members[]));
+                    //Calling all the teams api to retrive all thier members
+                    foreach (var url in parsedMemberurl)
+                    {
+                        var getInstallMembers = await client.GetAsync(url.members_url);
+                        var installMembers = await getInstallMembers.Content.ReadAsStringAsync();
+                        parsedJson = (Members[]?)JsonSerializer.Deserialize(installMembers, typeof(Members[]));
 
-                            //Adding team members to the users list
-                            foreach (var login in parsedJson!)
-                            {
-                                //Prevent adding users who allready exsist
-                                if (!users.Contains(login.id))
-                                {
-                                    users.Add(login.id);
-                                }
-                            }
-                        }
-                        #endregion
-
-                #region bcc-code members
-                        //Calling the api to retrive all bcc-code members
-                        var getBccCodeMembers = await client.GetAsync("https://api.github.com/orgs/bcc-code/members?per_page=100");
-                        var bccCodeMembers = await getBccCodeMembers.Content.ReadAsStringAsync();
-
-                        //Parsing result
-                        Members[]? parsedMembersJson = (Members[]?)JsonSerializer.Deserialize(bccCodeMembers, typeof(Members[]));
-
-                        //Adding all the members to the list
-                        foreach (var member in parsedMembersJson!)
+                        //Adding team members to the users list
+                        foreach (var login in parsedJson!)
                         {
                             //Prevent adding users who allready exsist
-                            if (!users.Contains(member.id))
+                            if (!users.Contains(login.id))
                             {
-                                users.Add(member.id);
+                                users.Add(login.id);
                             }
                         }
-
-
-                        #endregion
-
-                        c.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
-
-                        //Return users list
-                        return users;
                     }
+                #endregion
+
+                #region bcc-code members
+                    //Calling the api to retrive all bcc-code members
+                    var getBccCodeMembers = await client.GetAsync("https://api.github.com/orgs/bcc-code/members?per_page=100");
+                    var bccCodeMembers = await getBccCodeMembers.Content.ReadAsStringAsync();
+
+                    //Parsing result
+                    Members[]? parsedMembersJson = (Members[]?)JsonSerializer.Deserialize(bccCodeMembers, typeof(Members[]));
+
+                    //Adding all the members to the list
+                    foreach (var member in parsedMembersJson!)
+                    {
+                        //Prevent adding users who allready exsist
+                        if (!users.Contains(member.id))
+                        {
+                            users.Add(member.id);
+                        }
+                    }
+                #endregion
+
+                    c.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+
+                    //Return users list
+                    return users;
                 }
             });
         }

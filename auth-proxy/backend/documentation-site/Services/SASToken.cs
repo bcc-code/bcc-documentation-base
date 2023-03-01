@@ -42,12 +42,6 @@ namespace BccCode.DocumentationSite.Services
 
                 BlobContainerClient containerClient = new BlobContainerClient(blobContainerUri: containerUri);
 
-                //Checks if container exsist
-                if (!_blobClient.GetBlobContainerClient(containerName).Exists())
-                {
-                    return "Container doesnt exsists";
-                }
-
                 //Creates a SAS token
                 BlobSasBuilder SASBuilder = new BlobSasBuilder()
                 {
