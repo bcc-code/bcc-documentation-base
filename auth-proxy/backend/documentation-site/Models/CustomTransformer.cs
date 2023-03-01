@@ -80,10 +80,7 @@ namespace BccCode.DocumentationSite.Models
                         path = $"/{homePage}{subPath}";
                     else
                         path = $"/{homePage}/{subPath}";
-                    var test = storageUrl + homePage + "/";
-                    if (!subPath.StartsWith("/"))
-                        subPath = "/" + subPath;
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(test , subPath, new QueryString(HPSASToken));
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl , path, new QueryString(HPSASToken));
                     return;
                 }
                 #endregion
@@ -109,7 +106,6 @@ namespace BccCode.DocumentationSite.Models
                 if (!containerList.Contains(containerName))
                 {
                     string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
-                    //path = $"/{homePage}/404.html";
                     path = $"/{homePage}{path}";
                     proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
                     return;
@@ -173,14 +169,10 @@ namespace BccCode.DocumentationSite.Models
                 #region redirect to documentation page
                 //Gets SAS token for container and adds it in the proxy
                 string SASToken = await token.GetUserDelegationSasContainer(containerName);
-                //if (path.Contains('#'))
-                //{
-                //    path.Remove(path.IndexOf('#'));
-                //}
-                if (path.EndsWith('/'))
-                {
-                    path = path + "index.html";
-                }
+                if (subPath.StartsWith("/"))
+                    path = $"/{containerName}{subPath}";
+                else
+                    path = $"/{containerName}/{subPath}";
                 proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(SASToken));
                 #endregion
 
