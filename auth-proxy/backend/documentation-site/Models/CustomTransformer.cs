@@ -35,31 +35,6 @@ namespace BccCode.DocumentationSite.Models
             var path = httpContext.Request.Path.Value!;
             try
             {
-                if (destinationPrefix == (storageUrl + homePage + "/"))
-                {
-                    //Appending the index.html to the sub path in case the subpath isnt refering to a file whitin the container
-                    if (!path.Contains(".") && !path.EndsWith("/"))
-                    {
-                        path = path + "/index.html";
-                    }
-                    else if (!path.Contains(".") && path.EndsWith("/"))
-                    {
-                        path = path + "index.html";
-                    }
-                    string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
-                    var test = storageUrl + homePage + "/";
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(test, path, new QueryString(HPSASToken));
-                    return;
-                }
-            }
-            catch (Exception e)
-            {
-                return;
-            }
-
-
-            try
-            {
                 #region container naming check
                 //Extract container name from the path which appears after the first '/' in the path
                 var containerName = path.Split('/')[1];
@@ -128,14 +103,14 @@ namespace BccCode.DocumentationSite.Models
                 #endregion
 
                 #region Container Check
-                //Check if the container exsists else send you to home page 404 page
-                Uri container = new Uri(storageUrl + containerName);
-                BlobContainerClient blobcontainer = new BlobContainerClient(container, credential);
-                if (!(await blobcontainer.ExistsAsync()))
+                //Gets List of the containers that exsist in the storage account
+                var containerList = await token.GetContainersList();
+                //Check if the container exsists else send you to home page
+                if (!containerList.Contains(containerName))
                 {
                     string HPSASToken = await token.GetUserDelegationSasContainer(homePage);
-                    path = $"/{homePage}/404.html";
-
+                    //path = $"/{homePage}/404.html";
+                    path = $"/{homePage}{path}";
                     proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(HPSASToken));
                     return;
                 }
@@ -195,6 +170,7 @@ namespace BccCode.DocumentationSite.Models
                 }
                 #endregion
 
+                #region redirect to documentation page
                 //Gets SAS token for container and adds it in the proxy
                 string SASToken = await token.GetUserDelegationSasContainer(containerName);
                 //if (path.Contains('#'))
@@ -206,6 +182,8 @@ namespace BccCode.DocumentationSite.Models
                     path = path + "index.html";
                 }
                 proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(storageUrl, path, new QueryString(SASToken));
+                #endregion
+
             }
             catch (Exception e)
             {

@@ -75,5 +75,26 @@ namespace BccCode.DocumentationSite.Services
             });
 
         }
+
+        public Task<List<string>> GetContainersList()
+        {
+
+            return _cache.GetOrCreateAsync("Containers", async c =>
+            {
+
+                List<string> exsistingContainers = new List<string>();
+                var containers = _blobClient!.GetBlobContainersAsync(BlobContainerTraits.Metadata).AsPages(default);
+
+                await foreach(Azure.Page<BlobContainerItem> containerPage in containers)
+                {
+                    foreach (BlobContainerItem containerItem in containerPage.Values)
+                    {
+                        exsistingContainers.Add(containerItem.Name);
+                    }    
+                }
+                c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+                return exsistingContainers;
+            });
+        }
     }
 }

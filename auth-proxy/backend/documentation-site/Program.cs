@@ -106,15 +106,7 @@ app.UseEndpoints(endpoints =>
 
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
-        ForwarderError error;
-        if (httpContext.Request.Path.StartsWithSegments(new PathString("/home")) || httpContext.Request.Path.Value == "/")
-        {
-            var p = "/" + string.Join('/', httpContext.Request.Path.Value!.Split("/").Skip(2));
-            httpContext.Request.Path = p;
-            error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl") + "home/", httpClient, requestConfig, transformer!);
-        }
-        else
-          error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl"), httpClient, requestConfig, transformer!);
+        var error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl"), httpClient, requestConfig, transformer!);
         // Check if the operation was successful
         if (error != ForwarderError.None)
         {
