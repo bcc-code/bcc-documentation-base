@@ -63,9 +63,14 @@ namespace BccCode.DocumentationSite.Models
                     //Check if the container exsists else send you to home page
                     if (!containerList.Contains(containerName))
                     {
-                        string HPSASToken = await token.GetUserDelegationSasContainer("home");
-                        path = $"/home{path}";
-                        proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(HPSASToken));
+                        if ((await token.GetContainersList("home")).Contains(path))
+                        {
+                            string HPSASToken = await token.GetUserDelegationSasContainer("home");
+                            path = $"/home{path}";
+                            proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(HPSASToken));
+                        }
+                        else
+                            httpContext.Response.Redirect(new PathString("/home/404.html"));
                         return;
                     }
                     #endregion
@@ -143,8 +148,13 @@ namespace BccCode.DocumentationSite.Models
                 #region redirect to documentation page
                 //Gets SAS token for container and adds it in the proxy
                 string SASToken = await token.GetUserDelegationSasContainer(containerName);
-                path = $"/{containerName}{subPath}";
-                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(SASToken));
+                if ((await token.GetContainersList(containerName)).Contains(subPath))
+                {
+                    path = $"/{containerName}{subPath}";
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(SASToken));
+                }
+                else
+                    httpContext.Response.Redirect(new PathString($"/{containerName}/404.html"));
                 #endregion
 
             }

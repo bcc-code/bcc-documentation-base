@@ -90,5 +90,27 @@ namespace BccCode.DocumentationSite.Services
                 return exsistingContainers;
             });
         }
+
+        public Task<List<string>> GetContainersList(string container)
+        {
+
+            return _cache.GetOrCreateAsync(container + "Files", async c =>
+            {
+
+                List<string> exsistingBlobs = new List<string>();
+                var containerClient = _blobClient!.GetBlobContainerClient(container);
+                var blobs = containerClient.GetBlobsAsync().AsPages(default);
+
+                await foreach (Azure.Page<BlobItem> blobPage in blobs)
+                {
+                    foreach (BlobItem blobItem in blobPage.Values)
+                    {
+                        exsistingBlobs.Add("/" + blobItem.Name);
+                    }
+                }
+                c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+                return exsistingBlobs;
+            });
+        }
     }
 }
