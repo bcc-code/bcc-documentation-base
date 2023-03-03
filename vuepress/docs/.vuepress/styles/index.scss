@@ -36,8 +36,11 @@ html.dark {
 
 @media (max-width: $MQMobile) {
   body {
-    h2 {
-      font-size: .9rem;
+    font-size: .9rem;
+    .bcc-features {
+      h2 {
+        font-size: .9rem;
+      }
     }
   }
 
