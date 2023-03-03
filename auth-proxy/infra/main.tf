@@ -288,8 +288,8 @@ module "api_container_app" {
             }
           ],
           resources = {
-            cpu    = 0.5
-            memory = "1Gi"
+            cpu    = 0.25
+            memory = "0.5Gi"
           }
           volumeMounts = [{
             mountPath  = "/azfiles"
@@ -300,6 +300,16 @@ module "api_container_app" {
       scale = {
         minReplicas = 0
         maxReplicas = 10
+        rules = [{
+          name = "cpu"
+          custom = {
+            type = "cpu"
+            metadata = {
+              type  = "AverageValue"
+              value = 60
+            }
+          }
+        }]
       }
       volumes = [{
         name        = local.volume_name

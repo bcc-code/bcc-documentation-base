@@ -54,6 +54,7 @@ variable "container_app" {
       scale = optional(object({
         minReplicas = optional(number)
         maxReplicas = optional(number)
+        rules       = optional(any)
       }))
       volumes = optional(list(object({
         name        = string
