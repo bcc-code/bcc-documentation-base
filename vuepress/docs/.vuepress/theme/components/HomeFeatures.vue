@@ -16,10 +16,11 @@ const features = computed(() => {
 <template>
   <div v-if="features.length" class="bcc-features">
     <div v-for="feature in features" :key="feature.title" class="bcc-feature">
-      <a :href="feature.link" v-if="feature.link.startsWith('http')" target="_blank" rel="noopener"><h2>{{ feature.title }}</h2></a>
+      <a :href="feature.link" v-if="feature.link.startsWith('http')" rel="noopener"><h2>{{ feature.title }}</h2></a>
       <router-link :to="feature.link ?? '/'" v-else><h2>{{ feature.title }}</h2></router-link>
       <p>{{ feature.details }}</p>
-      <router-link :to="feature.link ?? '/'">Read More →</router-link>
+      <a :href="feature.link" v-if="feature.link.startsWith('http')" rel="noopener">Read More →</a>
+      <router-link v-else :to="feature.link ?? '/'">Read More →</router-link>
     </div>
   </div>
 </template>
