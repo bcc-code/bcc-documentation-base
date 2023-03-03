@@ -63,14 +63,15 @@ namespace BccCode.DocumentationSite.Models
                     //Check if the container exsists else send you to home page
                     if (!containerList.Contains(containerName))
                     {
+                        string HPSASToken = await token.GetUserDelegationSasContainer("home");
                         if ((await token.GetContainersList("home")).Contains(path))
                         {
-                            string HPSASToken = await token.GetUserDelegationSasContainer("home");
                             path = $"/home{path}";
                             proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(HPSASToken));
                         }
                         else
-                            httpContext.Response.Redirect(new PathString("/home/404.html"));
+                            //httpContext.Response.Redirect(new PathString("/home/404.html"));
+                            proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, "/home/index.html", new QueryString(HPSASToken));
                         return;
                     }
                     #endregion
@@ -154,13 +155,14 @@ namespace BccCode.DocumentationSite.Models
                     proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(SASToken));
                 }
                 else
-                    httpContext.Response.Redirect(new PathString($"/{containerName}/404.html"));
+                    //httpContext.Response.Redirect(new PathString($"/{containerName}/404.html"));
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, $"/{containerName}/index.html", new QueryString(SASToken));
                 #endregion
 
             }
             catch (Exception e)
             {
-                httpContext.Response.Redirect(new PathString("/home/404.html"));
+                httpContext.Response.Redirect(new PathString("/home/index.html"));
             }
         }
     }
