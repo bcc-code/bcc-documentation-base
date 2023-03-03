@@ -30,6 +30,8 @@ namespace BccCode.DocumentationSite.Services
         private BlobServiceClient? _blobClient;
         private Uri? _blobEndpoint;
 
+
+        //Retrives The SASToken for the spesified container
         public Task<string> GetUserDelegationSasContainer(string containerName)
         {
 
@@ -70,6 +72,7 @@ namespace BccCode.DocumentationSite.Services
 
         }
 
+        //Returns a list of all the containers that exsist in the storage account on azure
         public Task<List<string>> GetContainersList()
         {
 
@@ -91,6 +94,7 @@ namespace BccCode.DocumentationSite.Services
             });
         }
 
+        //Returns a list of all the blobs in the spesified container
         public Task<List<string>> GetContainersList(string container)
         {
 
