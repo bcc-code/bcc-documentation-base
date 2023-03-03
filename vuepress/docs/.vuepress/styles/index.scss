@@ -35,7 +35,14 @@ html.dark {
 }
 
 @media (max-width: $MQMobile) {
+  body {
+    font-size: .9rem;
+  }
+
   .home {
+    .action-button {
+      min-width: 80%;
+    }
     .bcc-features {
       flex-direction: column;
 
