@@ -3,6 +3,7 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using BccCode.DocumentationSite.Models;
+using IdentityServer4.Services;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel;
@@ -20,10 +21,12 @@ namespace BccCode.DocumentationSite.Services
     public class GetFiles : IGetFiles
     {
         private readonly IConfiguration config;
+        private readonly IMemoryCache cache;
 
-        public GetFiles(IConfiguration config)
+        public GetFiles(IConfiguration config, IMemoryCache cache)
         {
             this.config = config;
+            this.cache = cache;
         }
 
         List<int> artifactid = new List<int>();
@@ -210,6 +213,11 @@ namespace BccCode.DocumentationSite.Services
 
                 }
             }
+            #endregion
+
+            #region update cache
+            SASToken blobs = new SASToken(credential, new EnviromentVar(config).GetEnviromentVariable("StorageUrl"), cache);
+            await blobs.UpdateBlobsList(repo);
             #endregion
 
             return "Done";

@@ -95,7 +95,7 @@ namespace BccCode.DocumentationSite.Services
         }
 
         //Returns a list of all the blobs in the spesified container
-        public Task<List<string>> GetContainersList(string container)
+        public Task<List<string>> GetBlobsList(string container)
         {
 
             return _cache.GetOrCreateAsync(container + "Files", async c =>
@@ -115,6 +115,16 @@ namespace BccCode.DocumentationSite.Services
                 c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
                 return exsistingBlobs;
             });
+        }
+
+        //Updates the cache entry for the container
+        public async Task UpdateBlobsList(string container)
+        {
+            if (_cache!.TryGetValue(container + "Files", out object value))
+            {
+                _cache.Remove(container + "Files");
+            }
+            await GetBlobsList(container);
         }
     }
 }

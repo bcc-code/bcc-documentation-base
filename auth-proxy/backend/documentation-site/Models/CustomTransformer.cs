@@ -64,13 +64,13 @@ namespace BccCode.DocumentationSite.Models
                     if (!containerList.Contains(containerName))
                     {
                         string HPSASToken = await token.GetUserDelegationSasContainer("home");
-                        if ((await token.GetContainersList("home")).Contains(path))
+                        if ((await token.GetBlobsList("home")).Contains(path))
                         {
                             path = $"/home{path}";
                             proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(HPSASToken));
                         }
                         else
-                            proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, "/home/404.html", new QueryString(HPSASToken));
+                            proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, "/home/index.html", new QueryString(HPSASToken));
                         return;
                     }
                     #endregion
@@ -148,20 +148,20 @@ namespace BccCode.DocumentationSite.Models
                 #region redirect to documentation page
                 //Gets SAS token for container and adds it in the proxy
                 string SASToken = await token.GetUserDelegationSasContainer(containerName);
-                if ((await token.GetContainersList(containerName)).Contains(subPath))
+                if ((await token.GetBlobsList(containerName)).Contains(subPath))
                 {
                     path = $"/{containerName}{subPath}";
                     proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, path, new QueryString(SASToken));
                 }
                 else
-                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, $"/{containerName}/404.html", new QueryString(SASToken));
+                    proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, $"/{containerName}/index.html", new QueryString(SASToken));
                 #endregion
 
             }
             catch (Exception e)
             {
                 string HPSASToken = await token.GetUserDelegationSasContainer("home");
-                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, "/home/404.html", new QueryString(HPSASToken));
+                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix, "/home/index.html", new QueryString(HPSASToken));
             }
         }
     }

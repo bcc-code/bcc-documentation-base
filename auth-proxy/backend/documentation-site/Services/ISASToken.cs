@@ -4,6 +4,7 @@
     {
         Task<string> GetUserDelegationSasContainer(string containerName);
         Task<List<string>> GetContainersList();
-        Task<List<string>> GetContainersList(string container);
+        Task<List<string>> GetBlobsList(string container);
+        Task UpdateBlobsList(string container);
     }
 }
