@@ -54,7 +54,7 @@ namespace BccCode.DocumentationSite.Models
                 }
                 #endregion
 
-                //Checking if endpoint is discord or the home page to skip user authentication
+                //Checking if endpoint is discord or the home page to see if user need authentication
                 if (containerName != "home" && containerName != "discord")
                 {
                     #region Container Check
