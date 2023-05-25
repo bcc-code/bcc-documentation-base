@@ -106,7 +106,9 @@ app.UseEndpoints(endpoints =>
 
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
-        httpContext.Response.SetNoCache();
+        //Caching rule
+        //httpContext.Response.SetNoCache();
+        httpContext.Response.SetCache(120, "User-Agent");
         var error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl"), httpClient, requestConfig, transformer!);
         // Check if the operation was successful
         if (error != ForwarderError.None)
