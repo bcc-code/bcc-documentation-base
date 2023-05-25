@@ -108,6 +108,8 @@ app.UseEndpoints(endpoints =>
     {
         //Caching rule - caching of the browser holds only for 15 min.
         httpContext.Response.SetCache(900, "User-Agent");
+
+        //Proxy request
         var error = await forwarder!.SendAsync(httpContext, envVar!.GetEnviromentVariable("StorageUrl"), httpClient, requestConfig, transformer!);
         // Check if the operation was successful
         if (error != ForwarderError.None)
