@@ -46,6 +46,7 @@ export default defineUserConfig({
 
   plugins: [
     shikiPlugin({ theme: 'github-dark' }),
-    data.autoRegisterComponents ? registerComponentsPlugin({componentsDir: path.resolve(__dirname, `./auto-register-components`)}) : [],
+      data.autoRegisterComponents ? registerComponentsPlugin({ componentsDir: path.resolve(__dirname, `./auto-register-components`) }) : [],
+      'vuepress-plugin-mermaidjs'
   ],
 })
