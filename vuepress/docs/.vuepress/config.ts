@@ -7,8 +7,6 @@ import { bccCodeTheme } from './theme/theme'
 import * as data from "./data.json";
 import { generateSidebar } from './theme/helpers/generateSidebar';
 import { getDirname, path } from '@vuepress/utils'
-import VueMermaid from '@vuepress/vue-mermaid'
-Vue.use(VueMermaid)
 
 const __dirname = getDirname(import.meta.url)
 
