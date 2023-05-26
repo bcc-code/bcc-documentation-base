@@ -7,6 +7,7 @@ import { bccCodeTheme } from './theme/theme'
 import * as data from "./data.json";
 import { generateSidebar } from './theme/helpers/generateSidebar';
 import { getDirname, path } from '@vuepress/utils'
+import mermaidPlugin from 'vuepress-plugin-mermaidjs'
 
 const __dirname = getDirname(import.meta.url)
 
@@ -47,6 +48,6 @@ export default defineUserConfig({
   plugins: [
     shikiPlugin({ theme: 'github-dark' }),
       data.autoRegisterComponents ? registerComponentsPlugin({ componentsDir: path.resolve(__dirname, `./auto-register-components`) }) : [],
-      'vuepress-plugin-mermaidjs'
+      mermaidPlugin,
   ],
 })
