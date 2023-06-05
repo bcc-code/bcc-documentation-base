@@ -83,54 +83,57 @@ namespace BccCode.DocumentationSite.Models
                     }
                     #endregion
 
-                    #region authenticate user access
-                    //Gets the cached list of users who have access to the repository
-                    var usersInRepo = await getmembers.GetUsersInRepo("", containerName);
-
-                    //Checks if repository members exsists in the cache
-                    if (usersInRepo.IsNullOrEmpty())
+                    if (containerName != "bcc-platform")
                     {
+                        #region authenticate user access
+                        //Gets the cached list of users who have access to the repository
+                        var usersInRepo = await getmembers.GetUsersInRepo("", containerName);
 
-                        //Calling this method to get github token using the azure vault pem file
-                        string gitToken = await getmembers.GetTokenFromAzurePem();
-
-                        //Calling method to retrive users who have access to the repo
-                        var users = await getmembers.GetUsersInRepo(gitToken, containerName);
-
-                        //Checks if repo is not public (if list contains the element "404", repo is public)
-                        if (!(users.Contains(404)))
+                        //Checks if repository members exsists in the cache
+                        if (usersInRepo.IsNullOrEmpty())
                         {
-                            //If the list is an empty list the repository doesnt exsists
-                            if (users.IsNullOrEmpty())
+
+                            //Calling this method to get github token using the azure vault pem file
+                            string gitToken = await getmembers.GetTokenFromAzurePem();
+
+                            //Calling method to retrive users who have access to the repo
+                            var users = await getmembers.GetUsersInRepo(gitToken, containerName);
+
+                            //Checks if repo is not public (if list contains the element "404", repo is public)
+                            if (!(users.Contains(404)))
                             {
-                                httpContext.Response.StatusCode = 403;
-                                return;
+                                //If the list is an empty list the repository doesnt exsists
+                                if (users.IsNullOrEmpty())
+                                {
+                                    httpContext.Response.StatusCode = 403;
+                                    return;
+                                }
+                                //Returns if the current logged user exsists whitin the list of allowed people
+                                else
+                                {
+                                    if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                                    {
+                                        httpContext.Response.StatusCode = 403;
+                                        return;
+                                    }
+                                }
                             }
-                            //Returns if the current logged user exsists whitin the list of allowed people
-                            else
+                        }
+                        else
+                        {
+                            //Checks if cached repo is public or not
+                            if (!usersInRepo.Contains(404))
                             {
-                                if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                                //Checks if user exsists in the cached repo
+                                if (!usersInRepo.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
                                 {
                                     httpContext.Response.StatusCode = 403;
                                     return;
                                 }
                             }
                         }
+                        #endregion
                     }
-                    else
-                    {
-                        //Checks if cached repo is public or not
-                        if (!usersInRepo.Contains(404))
-                        {
-                            //Checks if user exsists in the cached repo
-                            if (!usersInRepo.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
-                            {
-                                httpContext.Response.StatusCode = 403;
-                                return;
-                            }
-                        }
-                    }
-                    #endregion
                 }
 
                 #region SubPath check
