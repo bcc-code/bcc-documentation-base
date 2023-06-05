@@ -83,7 +83,7 @@ namespace BccCode.DocumentationSite.Models
                     }
                     #endregion
 
-                    if (containerName != "bcc-platform")
+                    if (containerName != "bcc-core-api")
                     {
                         #region authenticate user access
                         //Gets the cached list of users who have access to the repository
