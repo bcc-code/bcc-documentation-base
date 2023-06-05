@@ -93,3 +93,94 @@ The default theme also includes a [Badge component](https://v2.vuepress.vuejs.or
 - VuePress - <Badge type="tip" text="v2" vertical="top" />
 - VuePress - <Badge type="warning" text="v2" vertical="middle" />
 - VuePress - <Badge type="danger" text="v2" vertical="bottom" />
+
+### Mermaid
+The Mermaid plugin enables the creation of diagrams and charts in the document.  
+**Flow chart:**  
+Example:
+<blockquote>  
+
+    ```mermaid
+    flowchart LR;
+      A-->B;
+      A-->C;
+      B-->D;
+      C-->D;
+    ```
+</blockquote>   
+
+Output:
+```mermaid
+flowchart LR;
+      A-->B;
+      A-->C;
+      B-->D;
+      C-->D;
+```
+
+**Flow chart:**  
+Example:  
+<blockquote>  
+
+    ```mermaid  
+        gantt  
+        title A Gantt Diagram  
+        dateFormat  DD-MM-YY  
+        axisFormat %d-%m-%y  
+        tickInterval 2day  
+        section Section  
+        A task           :a1, 01-06-23, 30d  
+        after first Task      :after a1  , 20d  
+        section Another  
+        Task in sec      :01-06-23  , 12d  
+        another task      : 24d  
+    ```  
+</blockquote>
+
+Output:
+```mermaid
+gantt
+    title A Gantt Diagram
+    dateFormat  DD-MM-YY
+    axisFormat %d-%m-%y
+    tickInterval 2day
+    section Section
+    A task           :a1, 01-06-23, 30d
+    after first Task      :after a1  , 20d
+    section Another
+    Task in sec      :01-06-23  , 12d
+    another task      : 24d
+```  
+
+**Timeline diagram:**  
+Example:
+<blockquote>  
+
+    ```mermaid  
+        timeline
+        title Timeline
+        2020 : A
+        2021 : B
+             : C
+        2022 : D
+        2023 : E
+    ```
+</blockquote>    
+
+Output:
+```mermaid
+timeline
+    title Timeline
+    2020 : A
+    2021 : B
+         : C
+    2022 : D
+    2023 : E
+```
+
+
+- You can find more options and types of supported charts and diagrams for the Mermaid plugin at the [offical documentation page](https://mermaid.js.org/intro/).
+
+::: tip
+Mermaid works both in a rendered VuePress site and when viewing the Markdown files on GitHub.
+:::
