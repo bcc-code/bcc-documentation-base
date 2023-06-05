@@ -179,8 +179,8 @@ timeline
 ```
 
 
-- You can find more options and types of supported charts and diagrams for the Mermaid plugin at the [offical documentation page]("https://mermaid.js.org/intro/").
+- You can find more options and types of supported charts and diagrams for the Mermaid plugin at the [offical documentation page](https://mermaid.js.org/intro/).
 
 ::: tip
-The mermaid plugin only works on github md files or build!
+Mermaid works both in a rendered VuePress site and when viewing the Markdown files on GitHub.
 :::
