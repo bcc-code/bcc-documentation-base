@@ -31,7 +31,7 @@ namespace BccCode.DocumentationSite.Services
 
         List<int> artifactid = new List<int>();
 
-        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip)
+        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false)
         {
             #region Azure vault pem file
             var envVar = new EnviromentVar(config);
@@ -212,6 +212,25 @@ namespace BccCode.DocumentationSite.Services
                     }
 
                 }
+
+                #region publicazing documents
+                //Setting "Public" file in the container to indicate that the container have public access
+                if (isPublic)
+                {
+                    BlobClient blobclient = blobcontainer.GetBlobClient("public");
+                    var tmpFile = Path.GetTempFileName();
+                    await blobclient.UploadAsync(File.Create(tmpFile));
+                    File.Delete(tmpFile);
+                    
+                }
+
+
+
+
+
+
+                #endregion
+
             }
             #endregion
 
