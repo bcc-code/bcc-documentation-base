@@ -214,16 +214,23 @@ namespace BccCode.DocumentationSite.Services
                 }
 
                 #region publicazing documents
-                //Setting "Public" file in the container to indicate that the container have public access
-                if (isPublic)
-                {
-                    BlobClient blobclient = blobcontainer.GetBlobClient("public");
-                    var tmpFile = Path.GetTempFileName();
-                    await blobclient.UploadAsync(File.Create(tmpFile));
-                    File.Delete(tmpFile);
-                    
-                }
 
+                try
+                {
+                    //Setting "Public" file in the container to indicate that the container have public access
+                    if (isPublic)
+                    {
+                        BlobClient blobclient = blobcontainer.GetBlobClient("public");
+                        var tmpFile = Path.GetTempFileName();
+                        await blobclient.UploadAsync(File.Create(tmpFile), true);
+                        File.Delete(tmpFile);
+
+                    }
+                }
+                catch
+                {
+                    return "Failed to set public status";
+                }
 
 
 
