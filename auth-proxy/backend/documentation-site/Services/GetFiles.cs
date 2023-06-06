@@ -226,15 +226,15 @@ namespace BccCode.DocumentationSite.Services
                         File.Delete(tmpFile);
 
                     }
+                    else
+                    {
+                        await blobcontainer.GetBlobClient("public").DeleteIfExistsAsync();
+                    }
                 }
                 catch
                 {
                     return "Failed to set public status";
                 }
-
-
-
-
 
                 #endregion
 
