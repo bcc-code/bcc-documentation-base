@@ -85,7 +85,8 @@ namespace BccCode.DocumentationSite.Models
                     }
                     #endregion
 
-                    _logger.LogInformation(token.IsPublic(containerName).ToString());
+                    _logger.LogWarning("do you see???");
+                    _logger.LogWarning((await token.IsPublic(containerName)).ToString());
 
                     if (containerName != "bcc-core-api")
                     {
