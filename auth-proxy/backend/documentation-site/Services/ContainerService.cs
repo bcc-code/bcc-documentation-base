@@ -129,14 +129,15 @@ namespace BccCode.DocumentationSite.Services
         }
 
         //Check for "public" file in the container
-        public Task<string> IsPublic(string Container)
+        public Task<string> IsPublic(string container)
         {
-            return _cache.GetOrCreateAsync(Container + "isPublic", async c =>
+            return _cache.GetOrCreateAsync(container + "isPublic", async c =>
             {
 
-                Uri containerUri = new Uri(_blobEndpoint!.ToString() + Container);
+                //Uri containerUri = new Uri(_blobEndpoint!.ToString() + Container);
+                //BlobContainerClient containerClient = new BlobContainerClient(containerUri);
 
-                BlobContainerClient containerClient = new BlobContainerClient(blobContainerUri: containerUri);
+                BlobContainerClient containerClient = _blobClient!.GetBlobContainerClient(container);
 
                 c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
                 try
