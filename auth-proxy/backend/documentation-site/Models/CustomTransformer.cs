@@ -99,7 +99,7 @@ namespace BccCode.DocumentationSite.Models
                             var users = await getmembers.GetUsersInRepo(gitToken, containerName); //Calling method to retrive users who have access to the repo
 
                             //Checks if repo is not public (if list contains the element "404", repo is public) or Public file within container exists
-                            if (!(users.Contains(404)) || !(await token.IsPublic(containerName)))
+                            if (!(users.Contains(404)) && !(await token.IsPublic(containerName)))
                             {
                                 //If the list is an empty list the repository doesnt exsists
                                 if (users.IsNullOrEmpty())
@@ -121,7 +121,7 @@ namespace BccCode.DocumentationSite.Models
                         else
                         {
                             //Checks if cached repo is public or not
-                            if (!usersInRepo.Contains(404) || !(await token.IsPublic(containerName)))
+                            if (!usersInRepo.Contains(404) && !(await token.IsPublic(containerName)))
                             {
                                 //Checks if user exsists in the cached repo
                                 if (!usersInRepo.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
