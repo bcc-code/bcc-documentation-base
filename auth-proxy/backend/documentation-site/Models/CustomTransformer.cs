@@ -27,7 +27,7 @@ namespace BccCode.DocumentationSite.Models
         public override async ValueTask TransformRequestAsync(HttpContext httpContext,HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             var credential = new DefaultAzureCredential();
-            SASToken token = new SASToken(credential, destinationPrefix, cache);
+            ContainerService token = new ContainerService(credential, destinationPrefix, cache);
 
             var path = httpContext.Request.Path.Value!;
             //Extract container name from the path which appears after the first '/' in the path
@@ -82,6 +82,8 @@ namespace BccCode.DocumentationSite.Models
                         return;
                     }
                     #endregion
+
+                    Console.Write(token.IsPublic(containerName).ToString());
 
                     if (containerName != "bcc-core-api")
                     {

@@ -242,7 +242,7 @@ namespace BccCode.DocumentationSite.Services
             #endregion
 
             #region update cache
-            SASToken blobs = new SASToken(credential, new EnviromentVar(config).GetEnviromentVariable("StorageUrl"), cache);
+            ContainerService blobs = new ContainerService(credential, new EnviromentVar(config).GetEnviromentVariable("StorageUrl"), cache);
             await blobs.UpdateBlobsList(repo);
             #endregion
 

@@ -10,18 +10,18 @@ using System.Runtime.CompilerServices;
 
 namespace BccCode.DocumentationSite.Services
 {
-    public class SASToken : ISASToken
+    public class ContainerService : IContainerService
     {
-        public SASToken()
+        public ContainerService()
         {
         }
 
-        public SASToken(DefaultAzureCredential credential, string blobEndpoint, IMemoryCache cache)
+        public ContainerService(DefaultAzureCredential credential, string blobEndpoint, IMemoryCache cache)
         {
             //Get authenticatated token credential
             _blobEndpoint = new Uri(blobEndpoint);
             _blobClient = new BlobServiceClient(_blobEndpoint, credential);
-
+            
             //Cache
             _cache = cache;
         }
@@ -30,7 +30,7 @@ namespace BccCode.DocumentationSite.Services
         private BlobServiceClient? _blobClient;
         private Uri? _blobEndpoint;
 
-
+        
         //Retrives The SASToken for the spesified container
         public Task<string> GetUserDelegationSasContainer(string containerName)
         {
@@ -125,6 +125,22 @@ namespace BccCode.DocumentationSite.Services
                 _cache.Remove(container + "Files");
             }
             await GetBlobsList(container);
+        }
+
+        //Check for "public" file in the container
+        public Task<bool> IsPublic(string Container)
+        {
+            return _cache.GetOrCreateAsync(Container + "isPublic", async c =>
+            {
+                c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+
+                Uri containerUri = new Uri(_blobEndpoint!.ToString() + Container);
+
+                BlobContainerClient containerClient = new BlobContainerClient(blobContainerUri: containerUri);
+
+                return (await containerClient.GetBlobClient("public").ExistsAsync()).Value;
+
+            });
         }
     }
 }
