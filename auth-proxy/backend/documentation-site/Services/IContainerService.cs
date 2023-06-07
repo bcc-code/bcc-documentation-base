@@ -6,6 +6,6 @@
         Task<List<string>> GetContainersList();
         Task<List<string>> GetBlobsList(string container);
         Task UpdateBlobsList(string container);
-        Task<bool> IsPublic(string ContainerName);
+        Task<string> IsPublic(string ContainerName);
     }
 }
