@@ -86,8 +86,13 @@ namespace BccCode.DocumentationSite.Models
                     }
                     #endregion
 
-                    logger.LogWarning("do you see???");
-                    logger.LogWarning((await token.IsPublic(containerName)).ToString());
+                    logger.LogWarning("----------------------------------PUBLIC FILE EXSISTENCE:-----------------------------------");
+
+                    var answer = await token.IsPublic(containerName);
+                    if (answer)
+                        logger.LogWarning("true");
+                    else
+                        logger.LogWarning("false");
 
                     if (containerName != "bcc-core-api")
                     {
