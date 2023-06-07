@@ -18,12 +18,13 @@ namespace BccCode.DocumentationSite.Models
     {
         private readonly IMemoryCache cache;
         private readonly IGetMembersInterface getmembers;
-        private readonly ILogger _logger;
-        public CustomTransformer(IMemoryCache cache, IGetMembersInterface getmembers, ILogger logger)
+        private readonly ILogger logger;
+
+        public CustomTransformer(IMemoryCache cache, IGetMembersInterface getmembers, ILoggerFactory logger)
         {
             this.cache = cache;
             this.getmembers = getmembers;
-            this._logger = logger;
+            this.logger = logger.CreateLogger<CustomTransformer>();
         }
 
         public override async ValueTask TransformRequestAsync(HttpContext httpContext,HttpRequestMessage proxyRequest, string destinationPrefix)
@@ -85,8 +86,8 @@ namespace BccCode.DocumentationSite.Models
                     }
                     #endregion
 
-                    _logger.LogWarning("do you see???");
-                    _logger.LogWarning((await token.IsPublic(containerName)).ToString());
+                    logger.LogWarning("do you see???");
+                    logger.LogWarning((await token.IsPublic(containerName)).ToString());
 
                     if (containerName != "bcc-core-api")
                     {
