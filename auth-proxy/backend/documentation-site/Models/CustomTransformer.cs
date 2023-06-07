@@ -89,10 +89,8 @@ namespace BccCode.DocumentationSite.Models
                     logger.LogWarning("----------------------------------PUBLIC FILE EXSISTENCE:-----------------------------------");
 
                     var answer = await token.IsPublic(containerName);
-                    if (answer)
-                        logger.LogWarning("true");
-                    else
-                        logger.LogWarning("false");
+
+                    logger.LogWarning(answer);
 
                     if (containerName != "bcc-core-api")
                     {

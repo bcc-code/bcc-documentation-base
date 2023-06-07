@@ -6,6 +6,7 @@ using Azure.Storage.Sas;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 namespace BccCode.DocumentationSite.Services
@@ -128,17 +129,30 @@ namespace BccCode.DocumentationSite.Services
         }
 
         //Check for "public" file in the container
-        public Task<bool> IsPublic(string Container)
+        public Task<string> IsPublic(string Container)
         {
             return _cache.GetOrCreateAsync(Container + "isPublic", async c =>
             {
-                c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
 
                 Uri containerUri = new Uri(_blobEndpoint!.ToString() + Container);
 
                 BlobContainerClient containerClient = new BlobContainerClient(blobContainerUri: containerUri);
 
-                return (await containerClient.GetBlobClient("public").ExistsAsync()).Value;
+                c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+                try
+                {
+                    var answer = (await containerClient.GetBlobClient("public").ExistsAsync()).Value;
+
+                    if (answer)
+                        return "true";
+                    else
+                        return "false";
+
+                }
+                catch (Exception e)
+                {
+                    return e.Message;
+                }
 
             });
         }
