@@ -69,7 +69,7 @@ builder.Services.AddHttpForwarder();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IGetMembersInterface, GetMembers>();
 builder.Services.AddSingleton<IGetFiles, GetFiles>();
-builder.Services.AddSingleton<ISASToken, SASToken>();
+builder.Services.AddSingleton<IContainerService, ContainerService>();
 builder.Services.AddSingleton<EnviromentVar>();
 builder.Services.AddSingleton<CustomTransformer>();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);

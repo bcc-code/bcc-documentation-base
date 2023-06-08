@@ -18,6 +18,7 @@ namespace BccCode.DocumentationSite.Models
     {
         private readonly IMemoryCache cache;
         private readonly IGetMembersInterface getmembers;
+
         public CustomTransformer(IMemoryCache cache, IGetMembersInterface getmembers)
         {
             this.cache = cache;
@@ -27,11 +28,12 @@ namespace BccCode.DocumentationSite.Models
         public override async ValueTask TransformRequestAsync(HttpContext httpContext,HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             var credential = new DefaultAzureCredential();
-            SASToken token = new SASToken(credential, destinationPrefix, cache);
+            ContainerService token = new ContainerService(credential, destinationPrefix, cache);
 
             var path = httpContext.Request.Path.Value!;
             //Extract container name from the path which appears after the first '/' in the path
             var containerName = path.Split('/')[1];
+
             //The path after the container name
             var subPath = "/" + string.Join('/', path.Split("/").Skip(2));
             try
@@ -86,21 +88,18 @@ namespace BccCode.DocumentationSite.Models
                     if (containerName != "bcc-core-api")
                     {
                         #region authenticate user access
-                        //Gets the cached list of users who have access to the repository
-                        var usersInRepo = await getmembers.GetUsersInRepo("", containerName);
+                        var usersInRepo = await getmembers.GetUsersInRepo("", containerName); //Gets the cached list of users who have access to the repository
 
                         //Checks if repository members exsists in the cache
                         if (usersInRepo.IsNullOrEmpty())
                         {
 
-                            //Calling this method to get github token using the azure vault pem file
-                            string gitToken = await getmembers.GetTokenFromAzurePem();
+                            string gitToken = await getmembers.GetTokenFromAzurePem(); //Calling this method to get github token using the azure vault pem file
 
-                            //Calling method to retrive users who have access to the repo
-                            var users = await getmembers.GetUsersInRepo(gitToken, containerName);
+                            var users = await getmembers.GetUsersInRepo(gitToken, containerName); //Calling method to retrive users who have access to the repo
 
-                            //Checks if repo is not public (if list contains the element "404", repo is public)
-                            if (!(users.Contains(404)))
+                            //Checks if repo is not public (if list contains the element "404", repo is public) or Public file within container exists
+                            if (!(users.Contains(404)) && !(await token.IsPublic(containerName)))
                             {
                                 //If the list is an empty list the repository doesnt exsists
                                 if (users.IsNullOrEmpty())
@@ -122,7 +121,7 @@ namespace BccCode.DocumentationSite.Models
                         else
                         {
                             //Checks if cached repo is public or not
-                            if (!usersInRepo.Contains(404))
+                            if (!usersInRepo.Contains(404) && !(await token.IsPublic(containerName)))
                             {
                                 //Checks if user exsists in the cached repo
                                 if (!usersInRepo.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))

@@ -6,22 +6,23 @@ using Azure.Storage.Sas;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 namespace BccCode.DocumentationSite.Services
 {
-    public class SASToken : ISASToken
+    public class ContainerService : IContainerService
     {
-        public SASToken()
+        public ContainerService()
         {
         }
 
-        public SASToken(DefaultAzureCredential credential, string blobEndpoint, IMemoryCache cache)
+        public ContainerService(DefaultAzureCredential credential, string blobEndpoint, IMemoryCache cache)
         {
             //Get authenticatated token credential
             _blobEndpoint = new Uri(blobEndpoint);
             _blobClient = new BlobServiceClient(_blobEndpoint, credential);
-
+            
             //Cache
             _cache = cache;
         }
@@ -30,7 +31,7 @@ namespace BccCode.DocumentationSite.Services
         private BlobServiceClient? _blobClient;
         private Uri? _blobEndpoint;
 
-
+        
         //Retrives The SASToken for the spesified container
         public Task<string> GetUserDelegationSasContainer(string containerName)
         {
@@ -125,6 +126,29 @@ namespace BccCode.DocumentationSite.Services
                 _cache.Remove(container + "Files");
             }
             await GetBlobsList(container);
+        }
+
+        //Check for "public" file in the container
+        public Task<bool> IsPublic(string container)
+        {
+            return _cache.GetOrCreateAsync(container + "isPublic", async c =>
+            {
+                try
+                {
+                    BlobContainerClient containerClient = _blobClient!.GetBlobContainerClient(container);
+
+                    var answer = (await containerClient.GetBlobClient("public").ExistsAsync()).Value;
+
+                    c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+                    return answer;
+
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+
+            });
         }
     }
 }
