@@ -66,3 +66,10 @@ The directory from where Vue components should automatically be registered
 Type: `string`
 
 Default: `src/components`
+
+### public <Badge type="warning" text="v3 or later" vertical="middle" />
+Wheter or not the documentation will be publicly available or not (works only for private repositories)
+
+Type: `bool`
+
+Default: `false`

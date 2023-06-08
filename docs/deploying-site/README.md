@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation site
-        uses: bcc-code/bcc-documentation-base@v2
+        uses: bcc-code/bcc-documentation-base@v3
         with:
           title: FILL IN
           description: FILL IN
@@ -59,7 +59,7 @@ It is possible to use a different folder than `docs` for documentation. This can
 ```yml
 steps:
   - name: Build documentation site
-    uses: bcc-code/bcc-documentation-base@v1
+    uses: bcc-code/bcc-documentation-base@v3
     with:
       ...
       docs-dir: documentation
@@ -73,3 +73,18 @@ on:
     paths:
       - documentation/**
 ```
+
+#### Make documentation publicly available
+For private repositories by default, the documentation is only visible to github members who are apart of the bcc-code organization or the collaborators of the repository.  
+But if you want your documentation to be accessiable to **anyone** with a github account, than it can be configured using the `public` option in the action:
+```yml
+steps:
+  - name: Build documentation site
+    uses: bcc-code/bcc-documentation-base@v3
+    with:
+      ...
+      public: true
+```  
+::: warning <del></del>
+Be sure you are using **v3** or later of the action.
+:::
