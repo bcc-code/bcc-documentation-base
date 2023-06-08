@@ -23,6 +23,9 @@ or
 # My page
 ```
 
+### Section title
+By default, the folder name of a section is used as it's name, in Title Case and with replacing dashes and underscores for spaces. Add a `sectionTitle` property to the `README.md` or `index.md` file in the folder to rename the section to whatever you like. This does not currently work with the top section which is always named after the `title` in the action file.
+
 ### Order
 To make it easy to control the order of pages in the sidebar, you can optionally add an `order` property to the page's [frontmatter](https://v2.vuepress.vuejs.org/guide/page.html#frontmatter).
 
@@ -42,6 +45,9 @@ By default, any `README.md` or `index.md` file will get an order of `-1`, while 
 Any subfolders will be added as a separate heading to the sidebar, with the name of the subfolder rendered in Title Case, and without any dashes `-` or underscores `_`.
 
 By addding a `sectionOrder` to a folder's `README.md` or `index.md`, the sections in the sidebar can be ordered. The section with files in the root of the `docs` folder will always be on top, and folders without a `sectionOrder` will be sorted alphabetically.
+
+### Hiding sections
+Add `hideSection: true` to your folder's `README.md` or `index.md` to hide the whole section from the sidebar. This can be useful in cases where you want to keep old links around without cluttering the sidebar.
 
 ## Writing Markdown
 Be sure to check the VuePress [documentation on Markdown](https://v2.vuepress.vuejs.org/guide/markdown.html) to view all syntax extensions on normal markdown available. 

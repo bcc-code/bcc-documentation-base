@@ -68,7 +68,7 @@ Type: `string`
 Default: `src/components`
 
 ### public <Badge type="warning" text="v3 or later" vertical="middle" />
-Wheter or not the documentation will be publicly available or not (works only for private repositories)
+Whether the documentation will be [publicly available](./README.md#make-documentation-publicly-available) or not (works only for private repositories)
 
 Type: `bool`
 
