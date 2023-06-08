@@ -60,11 +60,19 @@ export const generateSidebar = (): SidebarConfig => {
         let directory = directories.find(d => d.path == splittedFilePath[0]);
 
         if (!directory) {
+            const frontmatter = getSectionFrontmatter(splittedFilePath[0]);
+
+            if (frontmatter["hideSection"] === true) {
+                return;
+            }
+
+            const name = frontmatter["sectionTitle"] ?? prettifyDirectoryName(splittedFilePath[0])
+
             directory = {
-                name: prettifyDirectoryName(splittedFilePath[0]),
+                name,
                 path: splittedFilePath[0],
                 files: [],
-                order: getSectionOrder(splittedFilePath[0])
+                order: frontmatter["sectionOrder"] ?? 1,
             }
             directories.push(directory);
         }
@@ -106,13 +114,13 @@ const sortByOrderProperty = (array: Array<T>): Array<T> => {
     });
 }
 
-const getSectionOrder = (directory) => {
+const getSectionFrontmatter = (directory) => {
     if (existsSync(docsDirectory + '/' + directory + '/' + 'README.md')) {
-        return getFrontmatterProperty(directory, 'README.md', 'sectionOrder', 1);
+        return getFrontmatter(directory, 'README.md');
     }
 
     if (existsSync(docsDirectory + '/' + directory + '/' + 'index.md')) {
-        return getFrontmatterProperty(directory, 'index.md', 'sectionOrder', 1);
+        return getFrontmatter(directory, 'index.md');
     }
 
     return 1;
@@ -135,6 +143,13 @@ const getFrontmatterProperty = (directory, fileName, frontmatterProperty = 'orde
     }
 
     return frontmatter.data[frontmatterProperty];
+}
+
+const getFrontmatter = (directory, fileName) => {
+    const fileContents = readFileSync(docsDirectory + '/' + directory + '/' + fileName).toString();
+    const frontmatter = matter(fileContents);
+
+    return frontmatter.data;
 }
 
 const prettifyDirectoryName = (name) => {
