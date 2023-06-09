@@ -4,6 +4,7 @@ This repository holds the base for documentation of all BCC projects. It consist
 - `vuepress` - This is a VuePress base template including a theme, to be used by different documentation sites. Read more in [its readme](./vuepress/README.md).
 - `docs` - Public documentation for this project.
 - `action.yml` - A GitHub Action to be used by other repositories to build the documentation.
+- `auth-proxy` - A proxy that is used in Azure to require GitHub login for all documentation sites.
 
 ## Updating the GitHub Action
 The `action.yml` file is a [composite](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action) GitHub Action. It is used by workflows in other repositories like this:
