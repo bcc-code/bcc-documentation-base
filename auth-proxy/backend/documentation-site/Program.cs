@@ -4,6 +4,7 @@ using BccCode.DocumentationSite.Services;
 using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
 using System.Configuration;
@@ -90,8 +91,8 @@ builder.Services.AddAuthentication(o =>
 {
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
-    //o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
-    o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
+    o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
+    //o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
     o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     o.CallbackPath = "/signin-oidc-azure";
     o.SaveTokens = true;
@@ -99,8 +100,6 @@ builder.Services.AddAuthentication(o =>
     o.SignInScheme = "Cookies";
 });
 #endregion
-
-builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
 
@@ -134,10 +133,7 @@ app.UseEndpoints(endpoints =>
     var transformer = app.Services.GetService<CustomTransformer>();  //HttpTransformer.Default; // or new CustomTransformer();
     var envVar = app.Services.GetService<EnviromentVar>();
 
-    endpoints.MapReverseProxy(proxyPipeline =>
-    {
-        proxyPipeline.UseMiddleware<AuthMiddleWare>();
-    });
+    UseMiddlewareExtensions.UseMiddleware<AuthMiddleWare>(app); //authentication middleware
 
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
