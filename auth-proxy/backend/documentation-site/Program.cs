@@ -91,11 +91,12 @@ builder.Services.AddAuthentication(o =>
 {
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
-    //o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
-    o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
+    o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
+    //o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
     o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     o.CallbackPath = "/signin-oidc-azure";
     o.SaveTokens = true;
+    o.UsePkce = true;
     o.GetClaimsFromUserInfoEndpoint = true;
     o.SignInScheme = "Cookies";
 });
@@ -123,6 +124,8 @@ var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.From
 
 app.UseRouting();
 
+app.UseMiddleware<AuthMiddleWare>(); // authentication middleware
+
 app.UseAuthentication();
 
 app.UseAuthorization();
@@ -132,8 +135,6 @@ app.UseEndpoints(endpoints =>
     var forwarder = app.Services.GetService<IHttpForwarder>();
     var transformer = app.Services.GetService<CustomTransformer>();  //HttpTransformer.Default; // or new CustomTransformer();
     var envVar = app.Services.GetService<EnviromentVar>();
-
-    UseMiddlewareExtensions.UseMiddleware<AuthMiddleWare>(app); //authentication middleware
 
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
