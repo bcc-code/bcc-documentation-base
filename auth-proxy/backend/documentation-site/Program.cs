@@ -1,10 +1,17 @@
+using BccCode.DocumentationSite.Middleware;
 using BccCode.DocumentationSite.Models;
 using BccCode.DocumentationSite.Services;
 using IdentityServer4.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
+using System.Configuration;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net;
+using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -74,6 +81,26 @@ builder.Services.AddSingleton<EnviromentVar>();
 builder.Services.AddSingleton<CustomTransformer>();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
+#region add azure auth
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultScheme = "Cookies";
+    o.DefaultChallengeScheme = "AzureAd";
+}).AddCookie("Cookies").AddOpenIdConnect("AzureAd", o =>
+{
+    o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
+    o.ClientId = builder.Configuration["AzureAd:ClientId"];
+    o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
+    o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+    o.CallbackPath = "/signin-oidc-azure";
+    o.SaveTokens = true;
+    o.GetClaimsFromUserInfoEndpoint = true;
+    o.SignInScheme = "Cookies";
+});
+#endregion
+
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
 var app = builder.Build();
 
 //Https forwarding in the container app
@@ -96,6 +123,8 @@ var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.From
 
 app.UseRouting();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
@@ -103,6 +132,11 @@ app.UseEndpoints(endpoints =>
     var forwarder = app.Services.GetService<IHttpForwarder>();
     var transformer = app.Services.GetService<CustomTransformer>();  //HttpTransformer.Default; // or new CustomTransformer();
     var envVar = app.Services.GetService<EnviromentVar>();
+
+    endpoints.MapReverseProxy(proxyPipeline =>
+    {
+        proxyPipeline.UseMiddleware<AuthMiddleWare>();
+    });
 
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
@@ -131,8 +165,6 @@ if (app.Environment.IsDevelopment())
 app.UseCookiePolicy();
 
 app.UseHttpsRedirection();
-
-app.UseAuthentication();
 
 app.MapControllers();
 
