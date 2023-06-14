@@ -104,8 +104,7 @@ builder.Services.AddAuthentication(o =>
     o.UseTokenLifetime = false;
     o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
-        ClockSkew = TimeSpan.Zero,
-
+        ClockSkew = TimeSpan.FromMinutes(-5)
     };
 
 
