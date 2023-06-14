@@ -91,8 +91,8 @@ builder.Services.AddAuthentication(o =>
 {
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
-    o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
-    //o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
+    //o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
+    o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
     o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     o.CallbackPath = "/signin-oidc-azure";
     o.SaveTokens = true;
