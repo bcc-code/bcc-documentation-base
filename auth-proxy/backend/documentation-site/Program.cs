@@ -91,12 +91,11 @@ builder.Services.AddAuthentication(o =>
 {
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
-    o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
-    //o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
+    //o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
+    o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
     o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     o.CallbackPath = "/signin-oidc-azure";
     o.SaveTokens = true;
-    o.UsePkce = true;
     o.GetClaimsFromUserInfoEndpoint = true;
     o.SignInScheme = "Cookies";
 });
@@ -136,8 +135,13 @@ app.UseEndpoints(endpoints =>
     var transformer = app.Services.GetService<CustomTransformer>();  //HttpTransformer.Default; // or new CustomTransformer();
     var envVar = app.Services.GetService<EnviromentVar>();
 
+    var loggerfactory = app.Services.GetService<ILoggerFactory>();
+    ILogger logger = loggerfactory.CreateLogger<CustomTransformer>();
+
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
+        logger.LogCritical($"path = {httpContext.Request.Path}");
+
         //Caching rule - caching of the browser holds only for 15 min.
         httpContext.Response.SetCache(900, "Cookie");
 
