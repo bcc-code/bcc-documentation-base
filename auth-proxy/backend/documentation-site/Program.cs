@@ -117,11 +117,6 @@ builder.Services.AddAuthentication(o =>
             var expiresUtc = issuedUtc.AddMinutes(15);
             context.Properties!.ExpiresUtc = expiresUtc;
             return Task.CompletedTask;
-        },
-        OnRedirectToIdentityProvider = context =>
-        {
-            context.ProtocolMessage.Prompt = "consent";
-            return Task.CompletedTask;
         }
     };
 });
