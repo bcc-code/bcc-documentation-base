@@ -163,6 +163,8 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseMiddleware<CookieMiddleware>();
+
 app.UseEndpoints(endpoints =>
 {
     var forwarder = app.Services.GetService<IHttpForwarder>();

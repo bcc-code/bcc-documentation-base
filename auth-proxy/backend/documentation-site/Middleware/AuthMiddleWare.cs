@@ -23,6 +23,7 @@ namespace BccCode.DocumentationSite.Middleware
         {
             try
             {
+                #region a
                 var path = context.Request.Path;
                 //Extract container name from the path which appears after the first '/' in the path
                 var containerName = path.Value!.Split('/')[1];
@@ -40,6 +41,7 @@ namespace BccCode.DocumentationSite.Middleware
                         return;
                     }
                 }
+                #endregion
 
                 #region testing
                 //var path = context.Request.Path;
