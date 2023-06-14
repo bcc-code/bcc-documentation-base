@@ -91,8 +91,8 @@ builder.Services.AddAuthentication(o =>
 {
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
-    //o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
-    o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
+    o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
+    //o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
     o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     o.CallbackPath = "/signin-oidc-azure";
     o.SaveTokens = true;
@@ -101,6 +101,22 @@ builder.Services.AddAuthentication(o =>
 });
 #endregion
 
+#region cookie conf
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.Path = "/";
+    o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+
+builder.Services.Configure<CookiePolicyOptions>(o =>
+{
+    o.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+    o.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+    o.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+});
+
+
+#endregion
 var app = builder.Build();
 
 //Https forwarding in the container app
@@ -171,3 +187,11 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+static void CheckSameSite(HttpContext httpContext, CookieOptions options)
+{
+    if (options.SameSite == SameSiteMode.None)
+    {
+        options.SameSite = SameSiteMode.Unspecified; // SameSiteMode.Unspecified
+    }
+}
