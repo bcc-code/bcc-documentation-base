@@ -21,49 +21,56 @@ namespace BccCode.DocumentationSite.Middleware
 
         public async Task InvokeAsync(HttpContext context, IAuthenticationService authenticationService)
         {
-            var path = context.Request.Path;
-            //Extract container name from the path which appears after the first '/' in the path
-            var containerName = path.Value!.Split('/')[1];
-            var credential = new DefaultAzureCredential();
-            var envVar = new EnviromentVar(_config);
-            ContainerService cService = new ContainerService(credential, envVar.GetEnviromentVariable("StorageUrl"), _cache);
-
-            if((await cService.AuthProvider(containerName)) == "azuread")
+            try
             {
-                var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
+                var path = context.Request.Path;
+                //Extract container name from the path which appears after the first '/' in the path
+                var containerName = path.Value!.Split('/')[1];
+                var credential = new DefaultAzureCredential();
+                var envVar = new EnviromentVar(_config);
+                ContainerService cService = new ContainerService(credential, envVar.GetEnviromentVariable("StorageUrl"), _cache);
 
-                if (!result.Succeeded)
+                if ((await cService.AuthProvider(containerName)) == "azuread")
                 {
-                    await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"{path}" });
-                    return;
+                    var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
+
+                    if (!result.Succeeded)
+                    {
+                        await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"{path}" });
+                        return;
+                    }
                 }
+
+                #region testing
+                //var path = context.Request.Path;
+                //if (path.StartsWithSegments("/azure"))
+                //{
+                //    var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
+
+                //    if (!result.Succeeded)
+                //    {
+                //        await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"/test{path}" });
+                //        return;
+                //    }
+                //}
+                //if (path.StartsWithSegments("/bcc-platform"))
+                //{
+                //    var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
+
+                //    if (!result.Succeeded)
+                //    {
+                //        await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"{path}" });
+                //        return;
+                //    }
+                //}
+                #endregion
+
+                await _next(context);
             }
-
-            #region testing
-            //var path = context.Request.Path;
-            //if (path.StartsWithSegments("/azure"))
-            //{
-            //    var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
-
-            //    if (!result.Succeeded)
-            //    {
-            //        await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"/test{path}" });
-            //        return;
-            //    }
-            //}
-            //if (path.StartsWithSegments("/bcc-platform"))
-            //{
-            //    var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
-
-            //    if (!result.Succeeded)
-            //    {
-            //        await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"{path}" });
-            //        return;
-            //    }
-            //}
-            #endregion
-
-            await _next(context);
+            catch
+            {
+                await _next(context);
+            }
         }
     }
 }
