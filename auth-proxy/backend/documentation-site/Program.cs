@@ -101,12 +101,11 @@ builder.Services.AddAuthentication(o =>
     o.SaveTokens = true;
     o.GetClaimsFromUserInfoEndpoint = true;
     o.SignInScheme = "Cookies";
-    o.UseTokenLifetime = false;
-    o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-    {
-        ClockSkew = TimeSpan.Zero
-    };
 
+    o.CorrelationCookie.Name = ".AspNetCore.Correlation";
+    o.NonceCookie.Name = ".AspNetCore.OpenIdConnect.Nonce";
+    o.CorrelationCookie.Path = "/";
+    o.NonceCookie.Path = "/";
 
     o.Events = new OpenIdConnectEvents()
     {
