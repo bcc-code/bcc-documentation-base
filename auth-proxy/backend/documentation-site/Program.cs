@@ -3,6 +3,7 @@ using BccCode.DocumentationSite.Models;
 using BccCode.DocumentationSite.Services;
 using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -82,6 +83,8 @@ builder.Services.AddSingleton<EnviromentVar>();
 builder.Services.AddSingleton<CustomTransformer>();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
+
+
 #region add azure auth
 builder.Services.AddAuthentication(o =>
 {
@@ -98,6 +101,29 @@ builder.Services.AddAuthentication(o =>
     o.SaveTokens = true;
     o.GetClaimsFromUserInfoEndpoint = true;
     o.SignInScheme = "Cookies";
+    o.UseTokenLifetime = false;
+    o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+    {
+        ClockSkew = TimeSpan.Zero,
+
+    };
+
+
+    o.Events = new OpenIdConnectEvents()
+    {
+        OnTokenValidated = context =>
+        {
+            var issuedUtc = context.SecurityToken.ValidFrom;
+            var expiresUtc = issuedUtc.AddMinutes(15);
+            context.Properties!.ExpiresUtc = expiresUtc;
+            return Task.CompletedTask;
+        },
+        OnRedirectToIdentityProvider = context =>
+        {
+            context.ProtocolMessage.Prompt = "consent";
+            return Task.CompletedTask;
+        }
+    };
 });
 #endregion
 
