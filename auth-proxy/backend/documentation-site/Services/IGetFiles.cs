@@ -2,6 +2,6 @@
 {
     public interface IGetFiles
     {
-        Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false);
+        Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false, string auth = "github");
     }
 }

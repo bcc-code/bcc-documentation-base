@@ -101,7 +101,7 @@ builder.Services.AddAuthentication(o =>
 });
 #endregion
 
-#region cookie conf
+#region cookie configue
 builder.Services.ConfigureApplicationCookie(o =>
 {
     o.Cookie.Path = "/";
@@ -114,9 +114,8 @@ builder.Services.Configure<CookiePolicyOptions>(o =>
     o.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
     o.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
 });
-
-
 #endregion
+
 var app = builder.Build();
 
 //Https forwarding in the container app
@@ -151,12 +150,8 @@ app.UseEndpoints(endpoints =>
     var transformer = app.Services.GetService<CustomTransformer>();  //HttpTransformer.Default; // or new CustomTransformer();
     var envVar = app.Services.GetService<EnviromentVar>();
 
-    var loggerfactory = app.Services.GetService<ILoggerFactory>();
-    ILogger logger = loggerfactory.CreateLogger<CustomTransformer>();
-
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
-        logger.LogCritical($"path = {httpContext.Request.Path}");
 
         //Caching rule - caching of the browser holds only for 15 min.
         httpContext.Response.SetCache(900, "Cookie");
@@ -188,6 +183,7 @@ app.MapControllers();
 
 app.Run();
 
+#region help methods
 static void CheckSameSite(HttpContext httpContext, CookieOptions options)
 {
     if (options.SameSite == SameSiteMode.None)
@@ -195,3 +191,4 @@ static void CheckSameSite(HttpContext httpContext, CookieOptions options)
         options.SameSite = SameSiteMode.Unspecified; // SameSiteMode.Unspecified
     }
 }
+#endregion
