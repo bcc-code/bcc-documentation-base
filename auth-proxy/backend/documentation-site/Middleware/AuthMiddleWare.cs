@@ -46,7 +46,7 @@ namespace BccCode.DocumentationSite.Middleware
                     {
                         await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"{path}" });
                         _logger.LogCritical($"completed challenge to path = {path}");
-                        //return;
+                        return;
                     }
                 }
                 #endregion
