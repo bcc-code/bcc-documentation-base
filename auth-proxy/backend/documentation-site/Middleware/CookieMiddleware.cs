@@ -27,7 +27,7 @@
                         if (s != "" && s != null)
                         {
                             cookies.Add(cookie.Key);
-                            context.Response.Cookies.Append(".AspNetCore.Correlation", s);
+                            context.Response.Cookies.Append(".AspNetCore.Correlation", s, new CookieOptions() { Expires = DateTimeOffset.UtcNow.AddMinutes(15), HttpOnly = true, Secure = true});
                         }
                     }
                     else if(cookie.Key.StartsWith(".AspNetCore.OpenIdConnect.Nonce"))
@@ -36,13 +36,19 @@
                         if (s != "" && s != null)
                         {
                             cookies.Add(cookie.Key);
-                            context.Response.Cookies.Append(".AspNetCore.OpenIdConnect.Nonce", s);
+                            context.Response.Cookies.Append(".AspNetCore.OpenIdConnect.Nonce", s, new CookieOptions() { Expires = DateTimeOffset.UtcNow.AddMinutes(15), HttpOnly = true, Secure = true });
                         }
                     }
                 }
-                foreach (var cookie in cookies)
+                try
                 {
-                    context.Response.Cookies.Delete(cookie);
+                    foreach (var cookie in cookies)
+                    {
+                        context.Response.Cookies.Delete(cookie);
+                    }
+                }
+                catch
+                {
                 }
 
                 // Call the next middleware in the pipeline
