@@ -56,7 +56,7 @@
             }
             catch
             {
-                return;
+                await _next(context);
             }
         }
     }

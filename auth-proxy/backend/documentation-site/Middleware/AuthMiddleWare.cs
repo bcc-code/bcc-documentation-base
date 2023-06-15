@@ -1,4 +1,5 @@
-﻿using Azure.Identity;
+﻿using Azure;
+using Azure.Identity;
 using BccCode.DocumentationSite.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -71,6 +72,7 @@ namespace BccCode.DocumentationSite.Middleware
             }
             catch
             {
+                context.Response.Redirect("https://developer.bcc.no/");
                 await _next(context);
             }
         }
