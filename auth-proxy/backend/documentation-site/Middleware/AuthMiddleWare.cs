@@ -36,7 +36,9 @@ namespace BccCode.DocumentationSite.Middleware
                 ContainerService cService = new ContainerService(credential, envVar.GetEnviromentVariable("StorageUrl"), _cache);
 
                 _logger.LogCritical("authenticating...");
-                if ((await cService.AuthProvider(containerName)) == "azuread")
+                var authmethod = await cService.AuthProvider(containerName);
+                _logger.LogCritical($"auth method = {authmethod}");
+                if (authmethod == "azuread")
                 {
                     var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
                     _logger.LogCritical($"is authenticated = {result.Succeeded.ToString()}");
@@ -44,7 +46,7 @@ namespace BccCode.DocumentationSite.Middleware
                     {
                         await authenticationService.ChallengeAsync(context, "AzureAd", new AuthenticationProperties { RedirectUri = $"{path}" });
                         _logger.LogCritical($"completed challenge to path = {path}");
-                        return;
+                        //return;
                     }
                 }
                 #endregion
