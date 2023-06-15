@@ -159,7 +159,7 @@ var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.From
 
 app.UseRouting();
 
-//app.UseMiddleware<CookieMiddleware>();
+app.UseMiddleware<CookieMiddleware>();
 
 app.UseMiddleware<AuthMiddleWare>(); // authentication middleware
 
