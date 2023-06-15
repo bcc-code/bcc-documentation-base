@@ -56,7 +56,8 @@
             }
             catch
             {
-                await _next(context);
+                context.Response.Redirect("https://developer.bcc.no");
+                return;
             }
         }
     }
