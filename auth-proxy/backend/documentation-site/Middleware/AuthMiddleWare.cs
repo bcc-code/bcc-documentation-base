@@ -38,7 +38,7 @@ namespace BccCode.DocumentationSite.Middleware
                 _logger.LogCritical("authenticating...");
                 var authmethod = await cService.AuthProvider(containerName);
                 _logger.LogCritical($"auth method = {authmethod} path = {path}");
-                if (authmethod == "azuread")
+                if (authmethod == "azuread" || path == "/signin-oidc-azure")
                 {
                     var result = await authenticationService.AuthenticateAsync(context, "AzureAd");
                     _logger.LogCritical($"is authenticated = {result.Succeeded.ToString()}");
@@ -80,7 +80,8 @@ namespace BccCode.DocumentationSite.Middleware
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                await _next(context);
+                //await _next(context);
+                return;
             }
         }
     }
