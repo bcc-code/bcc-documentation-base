@@ -56,8 +56,7 @@
                     foreach (var cookie in cookies)
                     {
                         _logger.LogCritical($"deleting cookie {cookie}");
-                        //context.Response.Cookies.Delete(cookie);
-                        context.Request.Cookies.Keys.Remove(cookie);
+                        context.Response.Cookies.Delete(cookie);
                     }
                 }
                 catch (Exception e)
@@ -68,7 +67,6 @@
                 // Call the next middleware in the pipeline
                 _logger.LogCritical("calling next");
                 await _next(context);
-                _logger.LogCritical("returned from next");
             }
             catch (Exception e)
             {
