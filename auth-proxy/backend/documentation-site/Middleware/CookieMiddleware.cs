@@ -15,12 +15,15 @@
             // Example: Set a new value for a cookie
             try
             {
-                var a = context.Request.Cookies;
+                var requestCookies = context.Request.Cookies;
 
-                foreach (var cookie in a) 
+                List<string> cookies = new List<string>();
+
+                foreach (var cookie in requestCookies) 
                 {
                     if (cookie.Key.StartsWith(".AspNetCore.Correlation"))
                     {
+                        cookies.Add(cookie.Key);
                         var s = cookie.Key.Substring((".AspNetCore.Correlation").Length);
                         if (s != "" && s != null)
                         {
@@ -29,12 +32,17 @@
                     }
                     else if(cookie.Key.StartsWith(".AspNetCore.OpenIdConnect.Nonce"))
                     {
+                        cookies.Add(cookie.Key);
                         var s = cookie.Key.Substring((".AspNetCore.OpenIdConnect.Nonce").Length);
                         if (s != "" && s != null)
                         {
                             context.Response.Cookies.Append(".AspNetCore.OpenIdConnect.Nonce", s);
                         }
                     }
+                }
+                foreach (var cookie in cookies)
+                {
+                    requestCookies.Keys.Remove(cookie);
                 }
 
                 // Call the next middleware in the pipeline
