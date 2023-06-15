@@ -22,12 +22,18 @@
                     if (cookie.Key.StartsWith(".AspNetCore.Correlation"))
                     {
                         var s = cookie.Key.Substring((".AspNetCore.Correlation").Length);
-                        context.Response.Cookies.Append(".AspNetCore.Correlation", s);
+                        if (s != "" && s != null)
+                        {
+                            context.Response.Cookies.Append(".AspNetCore.Correlation", s);
+                        }
                     }
-                    else if(cookie.Value.StartsWith(".AspNetCore.OpenIdConnect.Nonce"))
+                    else if(cookie.Key.StartsWith(".AspNetCore.OpenIdConnect.Nonce"))
                     {
                         var s = cookie.Key.Substring((".AspNetCore.OpenIdConnect.Nonce").Length);
-                        context.Response.Cookies.Append(".AspNetCore.OpenIdConnect.Nonce", s);
+                        if (s != "" && s != null)
+                        {
+                            context.Response.Cookies.Append(".AspNetCore.OpenIdConnect.Nonce", s);
+                        }
                     }
                 }
 
