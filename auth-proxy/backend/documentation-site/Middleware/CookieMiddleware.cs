@@ -42,7 +42,7 @@
                 }
                 foreach (var cookie in cookies)
                 {
-                    requestCookies.Keys.Remove(cookie);
+                    context.Response.Cookies.Delete(cookie);
                 }
 
                 // Call the next middleware in the pipeline

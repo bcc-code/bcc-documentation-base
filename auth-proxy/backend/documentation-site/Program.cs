@@ -124,7 +124,9 @@ builder.Services.AddAuthentication(o =>
 builder.Services.ConfigureApplicationCookie(o =>
 {
     o.Cookie.Path = "/";
-    o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    o.Cookie.Expiration = TimeSpan.FromMinutes(15);
+    o.Cookie.HttpOnly = true;
 });
 
 builder.Services.Configure<CookiePolicyOptions>(o =>
