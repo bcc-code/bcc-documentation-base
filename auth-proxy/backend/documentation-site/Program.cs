@@ -104,40 +104,26 @@ builder.Services.AddAuthentication(o =>
     o.SaveTokens = true;
     o.GetClaimsFromUserInfoEndpoint = true;
     o.SignInScheme = "Cookies";
-
-    //o.CorrelationCookie.Name = ".AspNetCore.Correlation";
-    //o.NonceCookie.Name = ".AspNetCore.OpenIdConnect.Nonce";
     o.CorrelationCookie.Path = "/";
     o.NonceCookie.Path = "/";
-
-    //o.Events = new OpenIdConnectEvents()
-    //{
-    //    OnTokenValidated = context =>
-    //    {
-    //        var issuedUtc = context.SecurityToken.ValidFrom;
-    //        var expiresUtc = issuedUtc.AddMinutes(15);
-    //        context.Properties!.ExpiresUtc = expiresUtc;
-    //        return Task.CompletedTask;
-    //    }
-    //};
 });
 #endregion
 
 #region cookie configue
-builder.Services.ConfigureApplicationCookie(o =>
-{
-    o.Cookie.Path = "/";
-    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    o.Cookie.Expiration = TimeSpan.FromMinutes(15);
-    o.Cookie.HttpOnly = true;
-});
+//builder.Services.ConfigureApplicationCookie(o =>
+//{
+//    o.Cookie.Path = "/";
+//    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+//    o.Cookie.Expiration = TimeSpan.FromMinutes(15);
+//    o.Cookie.HttpOnly = true;
+//});
 
-builder.Services.Configure<CookiePolicyOptions>(o =>
-{
-    o.MinimumSameSitePolicy = SameSiteMode.Unspecified;
-    o.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
-    o.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
-});
+//builder.Services.Configure<CookiePolicyOptions>(o =>
+//{
+//    o.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+//    o.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+//    o.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+//});
 #endregion
 
 if (!builder.Environment.IsDevelopment())
@@ -171,8 +157,6 @@ var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
 var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
 app.UseRouting();
-
-//app.UseMiddleware<CookieMiddleware>();
 
 app.UseMiddleware<AuthMiddleWare>(); // authentication middleware
 
