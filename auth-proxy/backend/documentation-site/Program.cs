@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using BccCode.DocumentationSite.Middleware;
 using BccCode.DocumentationSite.Models;
 using BccCode.DocumentationSite.Services;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder.Extensions;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
 using System.Configuration;
@@ -102,8 +105,8 @@ builder.Services.AddAuthentication(o =>
     o.GetClaimsFromUserInfoEndpoint = true;
     o.SignInScheme = "Cookies";
 
-    o.CorrelationCookie.Name = ".AspNetCore.Correlation";
-    o.NonceCookie.Name = ".AspNetCore.OpenIdConnect.Nonce";
+    //o.CorrelationCookie.Name = ".AspNetCore.Correlation";
+    //o.NonceCookie.Name = ".AspNetCore.OpenIdConnect.Nonce";
     o.CorrelationCookie.Path = "/";
     o.NonceCookie.Path = "/";
 
@@ -137,6 +140,16 @@ builder.Services.Configure<CookiePolicyOptions>(o =>
 });
 #endregion
 
+if (!builder.Environment.IsDevelopment())
+{
+    string blobName = "keys.xml";
+    BlobContainerClient container = new BlobContainerClient(new Uri($"{builder.Configuration["AppSettings:StorageUrl"]}cookies" ?? ""), new DefaultAzureCredential());
+    // optional - provision the container automatically
+    await container.CreateIfNotExistsAsync();
+    BlobClient blobClient = container.GetBlobClient(blobName);
+    builder.Services.AddDataProtection().SetApplicationName("documentation-site").SetDefaultKeyLifetime(TimeSpan.FromDays(30)).PersistKeysToAzureBlobStorage(blobClient);
+}
+
 var app = builder.Build();
 
 //Https forwarding in the container app
@@ -159,7 +172,7 @@ var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.From
 
 app.UseRouting();
 
-app.UseMiddleware<CookieMiddleware>();
+//app.UseMiddleware<CookieMiddleware>();
 
 app.UseMiddleware<AuthMiddleWare>(); // authentication middleware
 
