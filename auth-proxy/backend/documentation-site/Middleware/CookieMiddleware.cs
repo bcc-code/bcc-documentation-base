@@ -27,7 +27,7 @@
                         if (s != "" && s != null)
                         {
                             cookies.Add(cookie.Key);
-                            context.Response.Cookies.Append(".AspNetCore.Correlation", s, new CookieOptions() { Expires = DateTimeOffset.UtcNow.AddMinutes(15), HttpOnly = true, Secure = true});
+                            context.Response.Cookies.Append(".AspNetCore.Correlation", s, new CookieOptions() { Expires = DateTimeOffset.Now.AddMinutes(15), HttpOnly = true, Secure = true});
                         }
                     }
                     else if(cookie.Key.StartsWith(".AspNetCore.OpenIdConnect.Nonce"))
@@ -36,7 +36,7 @@
                         if (s != "" && s != null)
                         {
                             cookies.Add(cookie.Key);
-                            context.Response.Cookies.Append(".AspNetCore.OpenIdConnect.Nonce", s, new CookieOptions() { Expires = DateTimeOffset.UtcNow.AddMinutes(15), HttpOnly = true, Secure = true });
+                            context.Response.Cookies.Append(".AspNetCore.OpenIdConnect.Nonce", s, new CookieOptions() { Expires = DateTimeOffset.Now.AddMinutes(15), HttpOnly = true, Secure = true });
                         }
                     }
                 }

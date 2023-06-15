@@ -107,16 +107,16 @@ builder.Services.AddAuthentication(o =>
     o.CorrelationCookie.Path = "/";
     o.NonceCookie.Path = "/";
 
-    o.Events = new OpenIdConnectEvents()
-    {
-        OnTokenValidated = context =>
-        {
-            var issuedUtc = context.SecurityToken.ValidFrom;
-            var expiresUtc = issuedUtc.AddMinutes(15);
-            context.Properties!.ExpiresUtc = expiresUtc;
-            return Task.CompletedTask;
-        }
-    };
+    //o.Events = new OpenIdConnectEvents()
+    //{
+    //    OnTokenValidated = context =>
+    //    {
+    //        var issuedUtc = context.SecurityToken.ValidFrom;
+    //        var expiresUtc = issuedUtc.AddMinutes(15);
+    //        context.Properties!.ExpiresUtc = expiresUtc;
+    //        return Task.CompletedTask;
+    //    }
+    //};
 });
 #endregion
 
