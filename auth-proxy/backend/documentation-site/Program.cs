@@ -91,9 +91,9 @@ builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICAT
 #region add azure auth
 builder.Services.AddAuthentication(o =>
 {
-    o.DefaultScheme = "Cookies";
+    o.DefaultScheme = "CookiesA";
     o.DefaultChallengeScheme = "AzureAd";
-}).AddCookie("Cookies").AddOpenIdConnect("AzureAd", o =>
+}).AddCookie("CookiesA").AddOpenIdConnect("AzureAd", o =>
 {
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
@@ -103,10 +103,10 @@ builder.Services.AddAuthentication(o =>
     o.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
     o.SaveTokens = true;
     o.GetClaimsFromUserInfoEndpoint = true;
-    o.SignInScheme = "Cookies";
+    o.SignInScheme = "CookiesA";
     o.CorrelationCookie.Path = "/";
     o.NonceCookie.Path = "/";
-}).AddOpenIdConnect("Portal", o =>
+}).AddCookie("CookiesP").AddOpenIdConnect("Portal", o =>
 {
     o.Authority = builder.Configuration["Portal:Instance"];
     o.ClientId = builder.Configuration["Portal:ClientId"];
@@ -115,7 +115,7 @@ builder.Services.AddAuthentication(o =>
     o.CallbackPath = builder.Configuration["Portal:CallbackPath"];
     o.SaveTokens = true;
     o.GetClaimsFromUserInfoEndpoint = true;
-    o.SignInScheme = "Cookies";
+    o.SignInScheme = "CookiesP";
     o.CorrelationCookie.Path = "/";
     o.NonceCookie.Path = "/";
 });

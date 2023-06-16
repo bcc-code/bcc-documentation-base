@@ -12,7 +12,7 @@ namespace BccCode.DocumentationSite.Controllers
         [HttpGet]
         public async Task<object> Logout()
         {
-            await HttpContext.SignOutAsync("Cookies");
+            await HttpContext.SignOutAsync("CookiesA");
             await HttpContext.SignOutAsync("AzureAd");
 
             Response.Headers.Add("REFRESH", "5;URL=/");
