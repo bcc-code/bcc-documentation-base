@@ -265,6 +265,27 @@ namespace BccCode.DocumentationSite.Services
                     return "Failed to set azure authentication method";
                 }
 
+                try
+                {
+                    //Setting "portal" file in the container to indicate that the ducementation is accessed via bcc portal
+                    if (auth.ToLower() == "portal")
+                    {
+                        BlobClient blobclient = blobcontainer.GetBlobClient("portal");
+                        var tmpFile = Path.GetTempFileName();
+                        await blobclient.UploadAsync(File.Create(tmpFile), true);
+                        File.Delete(tmpFile);
+
+                    }
+                    else
+                    {
+                        await blobcontainer.GetBlobClient("portal").DeleteIfExistsAsync();
+                    }
+                }
+                catch
+                {
+                    return "Failed to set bcc portal authentication method";
+                }
+
                 #endregion
 
 

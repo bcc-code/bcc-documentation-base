@@ -13,7 +13,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "azure",
+      "launchUrl": "test/azure",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

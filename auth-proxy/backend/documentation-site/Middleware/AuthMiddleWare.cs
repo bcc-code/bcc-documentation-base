@@ -42,6 +42,15 @@ namespace BccCode.DocumentationSite.Middleware
                         return;
                     }
                 }
+                if (authmethod == "portal")
+                {
+                    var result = await authenticationService.AuthenticateAsync(context, "Portal");
+                    if (!result.Succeeded)
+                    {
+                        await authenticationService.ChallengeAsync(context, "Portal", new AuthenticationProperties { RedirectUri = $"{path}" });
+                        return;
+                    }
+                }
                 #endregion
 
                 #region testing
@@ -71,7 +80,7 @@ namespace BccCode.DocumentationSite.Middleware
             }
             catch (Exception e)
             {
-                context.Response.Redirect("https://developer.bcc.no/");
+                context.Response.Redirect(new PathString("/"));
                 return;
             }
         }

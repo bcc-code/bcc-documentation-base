@@ -98,32 +98,27 @@ builder.Services.AddAuthentication(o =>
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
     //o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
-    o.ClientSecret = Environment.GetEnvironmentVariable("AUTH_APP_SECRET");
+    o.ClientSecret = Environment.GetEnvironmentVariable("AZURE_AUTH_APP_SECRET");
     o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-    o.CallbackPath = "/signin-oidc-azure";
+    o.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
+    o.SaveTokens = true;
+    o.GetClaimsFromUserInfoEndpoint = true;
+    o.SignInScheme = "Cookies";
+    o.CorrelationCookie.Path = "/";
+    o.NonceCookie.Path = "/";
+}).AddOpenIdConnect("Portal", o =>
+{
+    o.Authority = builder.Configuration["Portal:Instance"];
+    o.ClientId = builder.Configuration["Portal:ClientId"];
+    o.ClientSecret = Environment.GetEnvironmentVariable("PORTAL_AUTH_APP_SECRET");
+    o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+    o.CallbackPath = builder.Configuration["Portal:CallbackPath"];
     o.SaveTokens = true;
     o.GetClaimsFromUserInfoEndpoint = true;
     o.SignInScheme = "Cookies";
     o.CorrelationCookie.Path = "/";
     o.NonceCookie.Path = "/";
 });
-#endregion
-
-#region cookie configue
-//builder.Services.ConfigureApplicationCookie(o =>
-//{
-//    o.Cookie.Path = "/";
-//    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-//    o.Cookie.Expiration = TimeSpan.FromMinutes(15);
-//    o.Cookie.HttpOnly = true;
-//});
-
-//builder.Services.Configure<CookiePolicyOptions>(o =>
-//{
-//    o.MinimumSameSitePolicy = SameSiteMode.Unspecified;
-//    o.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
-//    o.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
-//});
 #endregion
 
 if (!builder.Environment.IsDevelopment())
@@ -203,13 +198,3 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
-
-#region help methods
-static void CheckSameSite(HttpContext httpContext, CookieOptions options)
-{
-    if (options.SameSite == SameSiteMode.None)
-    {
-        options.SameSite = SameSiteMode.Unspecified; // SameSiteMode.Unspecified
-    }
-}
-#endregion

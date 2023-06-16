@@ -158,7 +158,7 @@ namespace BccCode.DocumentationSite.Services
                 c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
                 try
                 {
-                    var authMethod = new List<string>() { "azuread" };
+                    var authMethod = new List<string>() { "azuread", "portal" };
                   
                     BlobContainerClient containerClient = _blobClient!.GetBlobContainerClient(container);
 
