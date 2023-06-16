@@ -4,6 +4,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using BccCode.DocumentationSite.Models;
 using IdentityServer4.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel;
@@ -29,9 +30,7 @@ namespace BccCode.DocumentationSite.Services
             this.cache = cache;
         }
 
-        List<int> artifactid = new List<int>();
-
-        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false)
+        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false, string auth = "github")
         {
             #region Azure vault pem file
             var envVar = new EnviromentVar(config);
@@ -103,9 +102,10 @@ namespace BccCode.DocumentationSite.Services
             }
             #endregion
 
-            #region Uploading zip file content to container in azure
+            #region Uploading files to container in azure
             else
             {
+                #region Uploading zip file content to container in azure
                 //Writing zip file to bytes
                 byte[] bytes;
                 using (var ms = new MemoryStream())
@@ -212,6 +212,9 @@ namespace BccCode.DocumentationSite.Services
                     }
 
                 }
+                #endregion
+
+                #region documentation settings
 
                 #region publicazing documents
 
@@ -238,6 +241,54 @@ namespace BccCode.DocumentationSite.Services
 
                 #endregion
 
+                #region Setting authentication method
+
+                try
+                {
+                    //Setting "azuread" file in the container to indicate that the ducementation is accessed via azureAD
+                    if (auth.ToLower() == "azuread")
+                    {
+                        BlobClient blobclient = blobcontainer.GetBlobClient("azuread");
+                        var tmpFile = Path.GetTempFileName();
+                        await blobclient.UploadAsync(File.Create(tmpFile), true);
+                        File.Delete(tmpFile);
+
+                    }
+                    else
+                    {
+                        await blobcontainer.GetBlobClient("azuread").DeleteIfExistsAsync();
+                    }
+                }
+                catch
+                {
+                    return "Failed to set azure authentication method";
+                }
+
+                try
+                {
+                    //Setting "portal" file in the container to indicate that the ducementation is accessed via bcc portal
+                    if (auth.ToLower() == "portal")
+                    {
+                        BlobClient blobclient = blobcontainer.GetBlobClient("portal");
+                        var tmpFile = Path.GetTempFileName();
+                        await blobclient.UploadAsync(File.Create(tmpFile), true);
+                        File.Delete(tmpFile);
+
+                    }
+                    else
+                    {
+                        await blobcontainer.GetBlobClient("portal").DeleteIfExistsAsync();
+                    }
+                }
+                catch
+                {
+                    return "Failed to set bcc portal authentication method";
+                }
+
+                #endregion
+
+
+                #endregion
             }
             #endregion
 

@@ -21,7 +21,7 @@ namespace BccCode.DocumentationSite.Controllers
 
         [HttpPost]
         [Route("UploadDoc")]
-        public async Task<string> PushDocToContainer(IFormFile Docs, bool isPublic = false)
+        public async Task<string> PushDocToContainer(IFormFile Docs, bool isPublic = false, string? auth = "github")
         {
             try
             {
@@ -41,7 +41,7 @@ namespace BccCode.DocumentationSite.Controllers
                 }
                 else
                 {
-                    return await _files.UploadPagesToStorage(repo, Docs, isPublic);
+                    return await _files.UploadPagesToStorage(repo, Docs, isPublic, auth!);
                 }
             }
             catch

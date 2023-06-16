@@ -150,5 +150,38 @@ namespace BccCode.DocumentationSite.Services
 
             });
         }
+
+        //Checks and returns the authentication method the endpoint is using
+        public Task<string> AuthProvider(string container)
+        {
+            return _cache.GetOrCreateAsync(container + "AuthProvider", async c =>
+            {
+                c.SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+                try
+                {
+                    var authMethod = new List<string>() { "azuread", "portal" };
+                  
+                    BlobContainerClient containerClient = _blobClient!.GetBlobContainerClient(container);
+
+                    foreach (var method in authMethod)
+                    { 
+                        var answer = (await containerClient.GetBlobClient(method).ExistsAsync()).Value;
+
+                        if (answer)
+                        {
+                            return method;
+                        }
+                    }
+
+                    return "github";
+
+                }
+                catch (Exception e)
+                {
+                    return "github";
+                }
+
+            });
+        }
     }
 }

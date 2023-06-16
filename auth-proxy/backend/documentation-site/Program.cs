@@ -1,10 +1,22 @@
+using Azure.Identity;
+using Azure.Storage.Blobs;
+using BccCode.DocumentationSite.Middleware;
 using BccCode.DocumentationSite.Models;
 using BccCode.DocumentationSite.Services;
 using IdentityServer4.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder.Extensions;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
+using System.Configuration;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net;
+using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -74,6 +86,51 @@ builder.Services.AddSingleton<EnviromentVar>();
 builder.Services.AddSingleton<CustomTransformer>();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
+
+
+#region authentication methods
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultScheme = "CookiesA";
+    o.DefaultChallengeScheme = "AzureAd";
+}).AddCookie("CookiesA").AddOpenIdConnect("AzureAd", o =>
+{
+    o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
+    o.ClientId = builder.Configuration["AzureAd:ClientId"];
+    o.ClientSecret = Environment.GetEnvironmentVariable("AZURE_AUTH_APP_SECRET");
+    o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+    o.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
+    o.SaveTokens = true;
+    o.GetClaimsFromUserInfoEndpoint = true;
+    o.SignInScheme = "CookiesA";
+    o.CorrelationCookie.Path = "/";
+    o.NonceCookie.Path = "/";
+}).AddCookie("CookiesP").AddOpenIdConnect("Portal", o =>
+{
+    o.Authority = builder.Configuration["Portal:Instance"];
+    o.ClientId = builder.Configuration["Portal:ClientId"];
+    o.ClientSecret = Environment.GetEnvironmentVariable("PORTAL_AUTH_APP_SECRET");
+    o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+    o.CallbackPath = builder.Configuration["Portal:CallbackPath"];
+    o.SaveTokens = true;
+    o.GetClaimsFromUserInfoEndpoint = true;
+    o.SignInScheme = "CookiesP";
+    o.CorrelationCookie.Path = "/";
+    o.NonceCookie.Path = "/";
+});
+#endregion
+
+//Saves encryption key for the cookies so it will persist across revisions
+if (!builder.Environment.IsDevelopment()) 
+{
+    string blobName = "keys.xml";
+    BlobContainerClient container = new BlobContainerClient(new Uri($"{builder.Configuration["AppSettings:StorageUrl"]}cookies" ?? ""), new DefaultAzureCredential());
+    // optional - provision the container automatically
+    await container.CreateIfNotExistsAsync();
+    BlobClient blobClient = container.GetBlobClient(blobName);
+    builder.Services.AddDataProtection().SetApplicationName("documentation-site").SetDefaultKeyLifetime(TimeSpan.FromDays(30)).PersistKeysToAzureBlobStorage(blobClient);
+}
+
 var app = builder.Build();
 
 //Https forwarding in the container app
@@ -96,7 +153,12 @@ var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.From
 
 app.UseRouting();
 
+app.UseMiddleware<AuthMiddleWare>(); // authentication middleware
+
+app.UseAuthentication();
+
 app.UseAuthorization();
+
 
 app.UseEndpoints(endpoints =>
 {
@@ -106,6 +168,7 @@ app.UseEndpoints(endpoints =>
 
     endpoints.Map("/{**catch-all}", async httpContext =>
     {
+
         //Caching rule - caching of the browser holds only for 15 min.
         httpContext.Response.SetCache(900, "Cookie");
 
@@ -131,8 +194,6 @@ if (app.Environment.IsDevelopment())
 app.UseCookiePolicy();
 
 app.UseHttpsRedirection();
-
-app.UseAuthentication();
 
 app.MapControllers();
 

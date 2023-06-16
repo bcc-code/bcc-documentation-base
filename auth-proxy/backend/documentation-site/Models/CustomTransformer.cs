@@ -77,59 +77,63 @@ namespace BccCode.DocumentationSite.Models
                     }
                     #endregion
 
-                    #region user signin confirmation
-                    if (httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString().IsNullOrEmpty())
+                    //Check authentication method to the container to determain authentication flow
+                    if ((await token.AuthProvider(containerName)) == "github")
                     {
-                        httpContext.Response.Redirect(new PathString("/.auth/login/github") + $"?post_login_redirect_uri={path}");
-                        return;
-                    }
-                    #endregion
-
-                    #region authenticate user access
-                    var usersInRepo = await getmembers.GetUsersInRepo("", containerName); //Gets the cached list of users who have access to the repository
-
-                    //Checks if repository members exsists in the cache
-                    if (usersInRepo.IsNullOrEmpty())
-                    {
-
-                        string gitToken = await getmembers.GetTokenFromAzurePem(); //Calling this method to get github token using the azure vault pem file
-
-                        var users = await getmembers.GetUsersInRepo(gitToken, containerName); //Calling method to retrive users who have access to the repo
-
-                        //Checks if repo is not public (if list contains the element "404", repo is public) or Public file within container exists
-                        if (!(users.Contains(404)) && !(await token.IsPublic(containerName)))
+                        #region user signin confirmation
+                        if (httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"].ToString().IsNullOrEmpty())
                         {
-                            //If the list is an empty list the repository doesnt exsists
-                            if (users.IsNullOrEmpty())
+                            httpContext.Response.Redirect(new PathString("/.auth/login/github") + $"?post_login_redirect_uri={path}");
+                            return;
+                        }
+                        #endregion
+
+                        #region authenticate user access
+                        var usersInRepo = await getmembers.GetUsersInRepo("", containerName); //Gets the cached list of users who have access to the repository
+
+                        //Checks if repository members exsists in the cache
+                        if (usersInRepo.IsNullOrEmpty())
+                        {
+
+                            string gitToken = await getmembers.GetTokenFromAzurePem(); //Calling this method to get github token using the azure vault pem file
+
+                            var users = await getmembers.GetUsersInRepo(gitToken, containerName); //Calling method to retrive users who have access to the repo
+
+                            //Checks if repo is not public (if list contains the element "404", repo is public) or Public file within container exists
+                            if (!(users.Contains(404)) && !(await token.IsPublic(containerName)))
                             {
-                                httpContext.Response.StatusCode = 403;
-                                return;
+                                //If the list is an empty list the repository doesnt exsists
+                                if (users.IsNullOrEmpty())
+                                {
+                                    httpContext.Response.StatusCode = 403;
+                                    return;
+                                }
+                                //Returns if the current logged user exsists whitin the list of allowed people
+                                else
+                                {
+                                    if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                                    {
+                                        httpContext.Response.StatusCode = 403;
+                                        return;
+                                    }
+                                }
                             }
-                            //Returns if the current logged user exsists whitin the list of allowed people
-                            else
+                        }
+                        else
+                        {
+                            //Checks if cached repo is public or not
+                            if (!usersInRepo.Contains(404) && !(await token.IsPublic(containerName)))
                             {
-                                if (!users.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
+                                //Checks if user exsists in the cached repo
+                                if (!usersInRepo.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
                                 {
                                     httpContext.Response.StatusCode = 403;
                                     return;
                                 }
                             }
                         }
+                        #endregion
                     }
-                    else
-                    {
-                        //Checks if cached repo is public or not
-                        if (!usersInRepo.Contains(404) && !(await token.IsPublic(containerName)))
-                        {
-                            //Checks if user exsists in the cached repo
-                            if (!usersInRepo.Contains(int.Parse(httpContext.Request.Headers["X-MS-CLIENT-PRINCIPAL-ID"])))
-                            {
-                                httpContext.Response.StatusCode = 403;
-                                return;
-                            }
-                        }
-                    }
-                    #endregion
                 }
 
                 #region SubPath check
