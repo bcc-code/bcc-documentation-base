@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation site
-        uses: bcc-code/bcc-documentation-base@v3
+        uses: bcc-code/bcc-documentation-base@v4
         with:
           title: FILL IN
           description: FILL IN
@@ -59,7 +59,7 @@ It is possible to use a different folder than `docs` for documentation. This can
 ```yml
 steps:
   - name: Build documentation site
-    uses: bcc-code/bcc-documentation-base@v3
+    uses: bcc-code/bcc-documentation-base@v4
     with:
       ...
       docs-dir: documentation
@@ -80,7 +80,7 @@ But if you want your documentation to be accessiable to **anyone** with a github
 ```yml
 steps:
   - name: Build documentation site
-    uses: bcc-code/bcc-documentation-base@v3
+    uses: bcc-code/bcc-documentation-base@v4
     with:
       ...
       public: true
