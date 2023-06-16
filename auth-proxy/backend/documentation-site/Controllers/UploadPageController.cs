@@ -9,7 +9,7 @@ namespace BccCode.DocumentationSite.Controllers
 {
     
     [ApiController]
-    [Authorize(AuthenticationSchemes = "github", Policy = "githubpolicy")]
+    //[Authorize(AuthenticationSchemes = "github", Policy = "githubpolicy")]
     public class UploadPageController : ControllerBase
     {
         private readonly IGetFiles _files;
@@ -21,7 +21,7 @@ namespace BccCode.DocumentationSite.Controllers
 
         [HttpPost]
         [Route("UploadDoc")]
-        public async Task<string> PushDocToContainer(IFormFile Docs, bool isPublic = false, [FromQuery(Name = "auth")] string auth = "github")
+        public async Task<string> PushDocToContainer(IFormFile Docs, bool isPublic = false, string? auth = "github")
         {
             try
             {
@@ -41,7 +41,7 @@ namespace BccCode.DocumentationSite.Controllers
                 }
                 else
                 {
-                    return await _files.UploadPagesToStorage(repo, Docs, isPublic, auth);
+                    return await _files.UploadPagesToStorage(repo, Docs, isPublic, auth!);
                 }
             }
             catch
