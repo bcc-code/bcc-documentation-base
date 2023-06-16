@@ -88,7 +88,7 @@ builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICAT
 
 
 
-#region add azure auth
+#region authentication methods
 builder.Services.AddAuthentication(o =>
 {
     o.DefaultScheme = "CookiesA";
@@ -97,7 +97,6 @@ builder.Services.AddAuthentication(o =>
 {
     o.Authority = $"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}";
     o.ClientId = builder.Configuration["AzureAd:ClientId"];
-    //o.ClientSecret = builder.Configuration["AUTH_APP_SECRET"];
     o.ClientSecret = Environment.GetEnvironmentVariable("AZURE_AUTH_APP_SECRET");
     o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
     o.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
@@ -121,7 +120,8 @@ builder.Services.AddAuthentication(o =>
 });
 #endregion
 
-if (!builder.Environment.IsDevelopment())
+//Saves encryption key for the cookies so it will persist across revisions
+if (!builder.Environment.IsDevelopment()) 
 {
     string blobName = "keys.xml";
     BlobContainerClient container = new BlobContainerClient(new Uri($"{builder.Configuration["AppSettings:StorageUrl"]}cookies" ?? ""), new DefaultAzureCredential());

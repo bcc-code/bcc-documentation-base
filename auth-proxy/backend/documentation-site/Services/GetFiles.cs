@@ -30,9 +30,7 @@ namespace BccCode.DocumentationSite.Services
             this.cache = cache;
         }
 
-        List<int> artifactid = new List<int>();
-
-        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false,[FromQuery(Name = "auth")] string auth = "github")
+        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false, string auth = "github")
         {
             #region Azure vault pem file
             var envVar = new EnviromentVar(config);

@@ -151,6 +151,7 @@ namespace BccCode.DocumentationSite.Services
             });
         }
 
+        //Checks and returns the authentication method the endpoint is using
         public Task<string> AuthProvider(string container)
         {
             return _cache.GetOrCreateAsync(container + "AuthProvider", async c =>
