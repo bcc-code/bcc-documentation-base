@@ -4,6 +4,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using BccCode.DocumentationSite.Models;
 using IdentityServer4.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel;
@@ -31,7 +32,7 @@ namespace BccCode.DocumentationSite.Services
 
         List<int> artifactid = new List<int>();
 
-        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false, string auth = "github")
+        public async Task<string> UploadPagesToStorage(string repo, IFormFile zip, bool isPublic = false,[FromQuery(Name = "auth")] string auth = "github")
         {
             #region Azure vault pem file
             var envVar = new EnviromentVar(config);

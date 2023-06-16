@@ -21,7 +21,7 @@ namespace BccCode.DocumentationSite.Controllers
 
         [HttpPost]
         [Route("UploadDoc")]
-        public async Task<string> PushDocToContainer(IFormFile Docs, bool isPublic = false, string auth = "github")
+        public async Task<string> PushDocToContainer(IFormFile Docs, bool isPublic = false, [FromQuery(Name = "auth")] string auth = "github")
         {
             try
             {
