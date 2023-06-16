@@ -9,7 +9,7 @@ namespace BccCode.DocumentationSite.Controllers
 {
     
     [ApiController]
-    //[Authorize(AuthenticationSchemes = "github", Policy = "githubpolicy")]
+    [Authorize(AuthenticationSchemes = "github", Policy = "githubpolicy")]
     public class UploadPageController : ControllerBase
     {
         private readonly IGetFiles _files;
