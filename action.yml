@@ -41,6 +41,10 @@ inputs:
     description: 'Whether or not to make the documentation publicly available (only works for private repositories)'
     required: false
     default: false
+  authentication:
+    description: 'Which provider to use for the login flow when accessing the documentation'
+    required: false
+    default: 'github'
 runs:
   using: "composite"
   steps:
@@ -97,4 +101,4 @@ runs:
     - name: Upload files to azure storage
       shell: bash
       run: |
-        curl --request POST --header "Authorization: Bearer ${{steps.token.outputs.token}}" --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}"
+        curl --request POST --header "Authorization: Bearer ${{steps.token.outputs.token}}" --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth={{inputs.authentication}}"

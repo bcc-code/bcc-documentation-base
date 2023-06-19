@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation site
-        uses: bcc-code/bcc-documentation-base@v4
+        uses: bcc-code/bcc-documentation-base@v5
         with:
           title: FILL IN
           description: FILL IN
@@ -59,7 +59,7 @@ It is possible to use a different folder than `docs` for documentation. This can
 ```yml
 steps:
   - name: Build documentation site
-    uses: bcc-code/bcc-documentation-base@v4
+    uses: bcc-code/bcc-documentation-base@v5
     with:
       ...
       docs-dir: documentation
@@ -80,11 +80,27 @@ But if you want your documentation to be accessiable to **anyone** with a github
 ```yml
 steps:
   - name: Build documentation site
-    uses: bcc-code/bcc-documentation-base@v4
+    uses: bcc-code/bcc-documentation-base@v5
     with:
       ...
       public: true
 ```  
 ::: warning <del></del>
 Be sure you are using **v3** or later of the action.
+:::
+
+#### Change authentication method for the documentation
+By default, the documentation is only accessible by logging in using a github account.  
+But if you want your documentation to be accessible using a different provider, than it can be configured using the `authentication` option in the action:
+```yml
+steps:
+  - name: Build documentation site
+    uses: bcc-code/bcc-documentation-base@v5
+    with:
+      ...
+      authentication: 'azuread'
+```  
+- Currently the only available providers are: **Github**, **AzureAD** and **BCC Portal**.  
+::: warning <del></del>
+Be sure you are using **v5** or later of the action.
 :::
