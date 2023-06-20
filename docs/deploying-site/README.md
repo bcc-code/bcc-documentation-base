@@ -101,6 +101,6 @@ steps:
       authentication: 'azuread'
 ```  
 - Currently the only available providers are: **Github**, **AzureAD** and **BCC Portal**.  
-::: warning <del></del>
+::: warning <span></span>
 Be sure you are using **v5** or later of the action.
 :::
