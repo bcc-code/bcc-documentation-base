@@ -70,6 +70,14 @@ Default: `src/components`
 ### public <Badge type="warning" text="v3 or later" vertical="middle" />
 Whether the documentation will be [publicly available](./README.md#make-documentation-publicly-available) or not (works only for private repositories)
 
-Type: `bool`
+Type: `boolean`
 
 Default: `false`
+
+### authentication <Badge type="warning" text="v5 or later" vertical="middle" />
+Which provider to use for the [login flow](./README.md#Change-authentication-method-for-the-documentation) when accessing the documentation.  
+Possible values are: `'github'`, `'azuread'` or `'portal'`.  
+
+Type: `string`
+
+Default: `github`
