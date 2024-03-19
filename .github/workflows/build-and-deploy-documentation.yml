@@ -29,3 +29,4 @@ jobs:
         with:
           title: Documentation Guide
           description: Information on how to set up documentation for BCC projects
+          authentication: 'portal'
