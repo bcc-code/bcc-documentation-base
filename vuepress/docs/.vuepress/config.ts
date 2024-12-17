@@ -8,6 +8,7 @@ import * as data from "./data.json";
 import { generateSidebar } from './theme/helpers/generateSidebar';
 import { getDirname, path } from '@vuepress/utils'
 import { mermaidWrapperPlugin } from 'vuepress-plugin-mermaid-wrapper'
+import { viteBundler } from '@vuepress/bundler-vite'
 
 const __dirname = getDirname(import.meta.url)
 
@@ -43,6 +44,11 @@ export default defineUserConfig({
       git: isProd,
       prismjs: false,
     },
+  }),
+
+  bundler: viteBundler({
+    viteOptions: {},
+    vuePluginOptions: {},
   }),
 
   plugins: [
