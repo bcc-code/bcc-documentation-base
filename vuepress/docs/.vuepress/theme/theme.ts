@@ -13,8 +13,8 @@ export const bccCodeTheme = (options: DefaultThemeOptions): Theme => {
     clientConfigFile: path.resolve(__dirname, './client.ts'),
 
     alias: {
-      '@theme/HomeFeatures.vue': path.resolve(__dirname, './components/HomeFeatures.vue'),
-      '@theme/NavbarBrand.vue': path.resolve(__dirname, './components/NavbarBrand.vue'),
+      '@theme/VPHomeFeatures.vue': path.resolve(__dirname, './components/VPHomeFeatures.vue'),
+      '@theme/VPNavbarBrand.vue': path.resolve(__dirname, './components/VPNavbarBrand.vue'),
     },
   }
 };
