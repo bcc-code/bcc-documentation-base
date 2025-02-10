@@ -45,6 +45,11 @@ export default defineUserConfig({
       prismjs: false,
     },
   }),
+  
+  alias: {
+    '@theme/VPHomeFeatures.vue': path.resolve(__dirname, './theme/components/VPHomeFeatures.vue'),
+    '@theme/VPNavbarBrand.vue': path.resolve(__dirname, './theme/components/VPNavbarBrand.vue'),
+  },
 
   bundler: viteBundler({
     viteOptions: {},
