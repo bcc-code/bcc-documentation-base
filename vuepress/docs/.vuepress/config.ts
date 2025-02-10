@@ -1,5 +1,5 @@
 import process from 'node:process'
-import { defineUserConfig } from 'vuepress'
+import { defineUserConfig } from '@vuepress/cli'
 import { shikiPlugin } from '@vuepress/plugin-shiki'
 import { registerComponentsPlugin } from '@vuepress/plugin-register-components'
 import { navbar } from './theme/navbar'
