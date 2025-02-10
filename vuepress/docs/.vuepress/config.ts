@@ -10,7 +10,7 @@ import { getDirname, path } from '@vuepress/utils'
 import { mermaidWrapperPlugin } from 'vuepress-plugin-mermaid-wrapper'
 import { viteBundler } from '@vuepress/bundler-vite'
 
-const __dirname = getDirname(import.meta.url)
+const __dirname = import.meta.dirname || getDirname(import.meta.url)
 
 const isProd = process.env.NODE_ENV === 'production';
 
