@@ -1,9 +1,20 @@
+---
+home: false
+icon: mdi:github
+title: Deployment
+sectionTitle: Getting started
+---
+
 # Get started
 
 ### Folder structure
 We recommend to use the following conventions when writing documentation:
 - Use a `docs` folder for all public documentation about your project.
 - Use the readme in the main folder only for information that is needed to run that project locally. Generally this kind of information is not interesting for people reading documentation about an API for example. If this information does need to be in the public documentation, link to the readme in the `docs` folder from the main readme.
+
+```component Button
+title: Mr.Hope
+```
 
 ### Publishing documentation
 Documentation can be published to [developer.bcc.no](https://developer.bcc.no) with VuePress. For this we have created a [custom theme](./vuepress/). To convert a `docs` folder into a VuePress site, follow these steps.

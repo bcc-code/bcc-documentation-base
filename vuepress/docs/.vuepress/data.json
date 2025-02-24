@@ -6,5 +6,5 @@
   "docsDir": "docs",
   "docsBranch": "main",
   "collapseSidebarSections": false,
-  "autoRegisterComponents": false
+  "autoRegisterComponents": true
 }

@@ -1,15 +1,24 @@
 ---
-order: 10
+order: 20
+icon: logos:vue
 ---
 # VuePress
 
-The documentation sites (like this one) use a custom [VuePress 2](https://v2.vuepress.vuejs.org/guide/) theme, based on the default theme. This means that any [Markdown plugins](https://v2.vuepress.vuejs.org/guide/markdown.html) used by VuePress and its default theme can also be used in your documentation.
+The documentation sites (like this one) use a custom [VuePress 2](https://v2.vuepress.vuejs.org/guide/) theme, based on [Vuepress Theme Hope](https://theme-hope.vuejs.press/). This means that any [Markdown plugins](https://v2.vuepress.vuejs.org/guide/markdown.html) used by VuePress can also be used in your documentation.
 
 ## Index file
 There should always be an index file in the root of the `docs` folder, either named `README.md` or `index.md`. Never add both files to the same folder, as VuePress will be confused as to which one to treat as the homepage of the site.
 
 ## Sidebar navigation
 This theme will build a sidebar from the folder structure in your `docs` folder.
+
+## Layouts
+The theme includes several standard layouts:
+
+* [Home](https://theme-hope.vuejs.press/guide/layout/home.html) - supports hero, features and highlights
+* [Page](https://theme-hope.vuejs.press/guide/layout/page.html) - default
+* [Portfolio](https://theme-hope.vuejs.press/guide/layout/portfolio.html)
+* [Slide](https://theme-hope.vuejs.press/guide/layout/slides.html)
 
 ### Title
 The page title in the sidebar is derived from the `title` property in the frontmatter or the primary heading in each Markdown file.
@@ -144,6 +153,7 @@ Example:
 </blockquote>
 
 Output:
+
 ```mermaid
 gantt
     title A Gantt Diagram
@@ -174,6 +184,7 @@ Example:
 </blockquote>    
 
 Output:
+
 ```mermaid
 timeline
     title Timeline

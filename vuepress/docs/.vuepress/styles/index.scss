@@ -1,81 +1,8 @@
-$MQMobile: 719px !default;
+$vp-font: 'Archivo, sans-serif';
+$vp-font-heading: 'Archivo, sans-serif';
+$vp-font-mono: 'Fira Code, monospace';
 
-// Custom colors
-:root {
-    // brand colors
-    --c-brand: #004E48; // BCC Color 600
-    --c-brand-light: #437571; // BCC Color 500
-}
-
-html.dark {
-  // brand colors
-  --c-brand: #3A8F76; // Sinbad 500
-  --c-brand-light: #5CAB91; // Sinbad 400
-}
-
-// Overwrite default theme styles
-.sidebar-heading {
-  text-transform: capitalize;
-}
-
-.home .hero .description {
-  max-width: 100%;
-}
-
-// Custom styles for our features component
-.bcc-features {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: 1rem;
-  margin-bottom: 2rem;
-  
-  h2 {
-    border-bottom: none;
-  }
-}
-
-@media (max-width: $MQMobile) {
-  body {
-    font-size: .9rem;
-    .bcc-features {
-      h2 {
-        font-size: .9rem;
-      }
-    }
-  }
-
-  .home {
-    .action-button {
-      min-width: 80%;
-    }
-    .bcc-features {
-      flex-direction: column;
-
-      h2 {
-        margin-bottom: 0;
-      }
-
-      p {
-        margin-top: 0.25rem;
-      }
-
-      .bcc-feature {
-        margin-bottom: 0.5rem;
-      }
-    }
-  }
-}
-
-// Not found page
-.notfound-container {
-  margin: 0 auto;
-  max-width: 500px;
-  margin-top: 100px;
-  padding: 20px;
-}
-
-@media (max-width: $MQMobile) {
-  .notfound-container {
-    margin: 0;
-  }
+/* Workaround for breaking styles introduced by PrimeVue */
+.theme-container .vp-sidebar {
+  box-sizing: content-box !important;
 }

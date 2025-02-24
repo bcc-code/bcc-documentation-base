@@ -1,21 +1,29 @@
 {
   "name": "bcc-docs-template",
   "scripts": {
-    "start": "npm run dev",
-    "serve": "npm run dev",
-    "dev": "cp -r ../docs/* docs/ && vuepress dev docs",
-    "build": "vuepress build docs"
+    "build": "vuepress-vite build docs",
+    "clean-dev": "cp -r ../docs/* docs/ && vuepress-vite dev docs --clean-cache",
+    "dev": "cp -r ../docs/* docs/ && vuepress-vite dev docs",
+    "update-package": "npx vp-update"
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@vuepress/bundler-vite": "^2.0.0-rc.18",
+    "@primevue/auto-import-resolver": "^4.2.5",
+    "@vuepress/bundler-vite": "^2.0.0-rc.19",
     "@vuepress/plugin-register-components": "^2.0.0-rc.54",
     "@vuepress/plugin-shiki": "^2.0.0-rc.65",
-    "@vuepress/theme-default": "^2.0.0-rc.65",
     "glob": "^8.0.3",
+    "mermaid": "^11.4.1",
     "sass-embedded": "^1.83.0",
     "seedrandom": "^3.0.5",
-    "vuepress": "^2.0.0-rc.18",
-    "vuepress-plugin-mermaid-wrapper": "^1.16.0"
+    "unplugin-vue-components": "^28.4.0",
+    "vue": "^3.5.13",
+    "vuepress": "^2.0.0-rc.19",
+    "vuepress-theme-hope": "2.0.0-rc.71"
+  },
+  "dependencies": {
+    "@primeuix/themes": "^1.0.0-rc.1",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.2.5"
   }
 }
