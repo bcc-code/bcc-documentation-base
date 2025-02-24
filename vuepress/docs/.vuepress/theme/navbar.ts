@@ -1,8 +1,8 @@
-import type { NavbarConfig } from '@vuepress/theme-default'
+import { navbar } from "vuepress-theme-hope";
 
-export const navbar: NavbarConfig = [
+export default navbar([
     {
         text: 'Design System',
         link: 'https://developer.bcc.no/bcc-design',
     },
-];
+]);

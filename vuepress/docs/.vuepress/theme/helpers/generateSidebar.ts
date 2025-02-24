@@ -2,7 +2,7 @@ import type { SidebarConfig } from '@vuepress/theme-default'
 import matter from 'gray-matter';
 import glob from 'glob';
 import * as data from "../../data.json";
-import { readFileSync, existsSync } from 'fs'
+import { readFileSync, existsSync, link } from 'fs'
 import { getDirname } from '@vuepress/utils';
 
 const __dirname = getDirname(import.meta.url);
@@ -94,11 +94,19 @@ export const generateSidebar = (): SidebarConfig => {
     sortByOrderProperty(directories).forEach(directory => {
         sidebar['/'].push({
             text: directory.name,
+            link: `/${directory.path}/`,
             children: sortByOrderProperty(directory.files).map(f => `/${directory.path}/${f.name}`),
             collapsible: data.collapseSidebarSections,
         });
     });
 
+    // Elevate single child directories (especially useful for single child root directories)
+    for (let key in sidebar) {
+        if (sidebar[key][0].children.length == 1) {
+            sidebar[key][0] = sidebar[key][0].children[0];
+        }
+    }
+ 
     return sidebar;
 }
 
