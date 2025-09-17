@@ -1,6 +1,5 @@
-import { generateSidebar } from './helpers/generateSidebar';
+import { generateSidebar } from "./helpers/generateSidebar";
 export default generateSidebar();
-
 
 // import { sidebar } from "vuepress-theme-hope";
 

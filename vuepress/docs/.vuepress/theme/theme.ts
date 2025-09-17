@@ -1,16 +1,15 @@
 import { hopeTheme } from "vuepress-theme-hope";
-import { getDirname, path } from '@vuepress/utils';
+import { getDirname, path } from "@vuepress/utils";
 import navbar from "./navbar.js";
 import sidebar from "./sidebar.js";
 import * as data from "../data.json";
-import process from 'node:process';
+import process from "node:process";
 
 const __dirname = getDirname(import.meta.url);
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env.NODE_ENV === "production";
 
 export default hopeTheme({
-
-  name: 'vuepress-theme-bcc-code',
+  name: "vuepress-theme-bcc-code",
 
   home: "/",
 
@@ -21,18 +20,16 @@ export default hopeTheme({
     url: "https://developer.bcc.no",
   },
 
-  logo: 'logo.png',
-  logoDark: 'logoWhite.png',
+  logo: "logo.png",
+  logoDark: "logoWhite.png",
 
-  repo: 'bcc-code',
+  repo: "bcc-code",
   docsRepo: data.docsRepo,
   docsDir: data.docsDir,
   docsBranch: data.docsBranch,
 
-
-
   // navbar
-  navbar, 
+  navbar,
 
   navbarLayout: {
     // Items on the left side (e.g., your logo or brand)
@@ -40,7 +37,7 @@ export default hopeTheme({
     // Items in the center (e.g., navigation links)
     center: [],
     // Items on the right (e.g., search, repository link, language switcher, etc.)
-    end: [ "Links", "Repo", "Darkmode", "Outlook"],
+    end: ["Search", "Links", "Repo", "Darkmode", "Outlook"],
   },
 
   navbarTitle: "",
@@ -52,11 +49,11 @@ export default hopeTheme({
 
   displayFooter: true,
 
-  clientConfigFile: path.resolve(__dirname, './client.ts'),
+  clientConfigFile: path.resolve(__dirname, "./client.ts"),
 
   encrypt: {
     config: {
-      "/demo/encrypt.html": { 
+      "/demo/encrypt.html": {
         hint: "Password: 1234",
         password: "1234",
       },
@@ -161,6 +158,8 @@ export default hopeTheme({
     icon: {
       prefix: "fa6-solid:",
     },
+
+    search: true,
 
     // install @vuepress/plugin-pwa and uncomment these if you want a PWA
     // pwa: {
