@@ -1,50 +1,54 @@
-name: 'Build and Deploy Documentation Site'
-description: 'Convert Markdown documentation to a BCC documentation site'
+name: "Build and Deploy Documentation Site"
+description: "Convert Markdown documentation to a BCC documentation site"
 inputs:
   title:
-    description: 'Title of the generated website'
+    description: "Title of the generated website"
     required: true
     default: ${{ github.event.repository.name }}
   description:
-    description: 'Description of the generated website, used for the head meta tag'
+    description: "Description of the generated website, used for the head meta tag"
     required: true
     default: ${{ github.event.repository.description }}
   docs-dir:
-    description: 'Directory where the docs are located'
+    description: "Directory where the docs are located"
     required: false
-    default: 'docs'
+    default: "docs"
   branch:
     description: 'Which branch to use for "Edit this page on GitHub" links'
     required: false
-    default: 'main'
+    default: "main"
   base:
-    description: 'The base url for the website'
+    description: "The base url for the website"
     required: false
     default: /${{ github.event.repository.name }}/
   collapse-sidebar:
-    description: 'Whether to collapse sidebar sections by default'
+    description: "Whether to collapse sidebar sections by default"
     required: false
     default: false
   auto-register-components:
-    description: 'Whether to automatically register Vue components'
+    description: "Whether to automatically register Vue components"
     required: false
     default: false
   components-dir:
-    description: 'The directory from where Vue components should automatically be registered'
+    description: "The directory from where Vue components should automatically be registered"
     required: false
-    default: 'src/components'
+    default: "src/components"
   debug-build:
-    description: 'Whether or not to enable debugging for the Vite build'
+    description: "Whether or not to enable debugging for the Vite build"
     required: false
     default: false
   public:
-    description: 'Whether or not to make the documentation publicly available (only works for private repositories)'
+    description: "Whether or not to make the documentation publicly available (only works for private repositories)"
     required: false
     default: false
   authentication:
-    description: 'Which provider to use for the login flow when accessing the documentation'
+    description: "Which provider to use for the login flow when accessing the documentation"
     required: false
-    default: 'github'
+    default: "github"
+  root:
+    description: "Whether or not to deploy the site to the root of the custom container (true) or to a subfolder named after the repository (false)"
+    required: false
+    default: false
 runs:
   using: "composite"
   steps:
@@ -58,14 +62,11 @@ runs:
       with:
         path: source
 
-    - name: Copy documentation to VuePress theme
+    - name: Zip Markdown files
       shell: bash
       run: |
-        cd source
-        cp -r ./${{ inputs.docs-dir }}/* $GITHUB_WORKSPACE/vuepress/docs/
-        ${{ inputs.auto-register-components }} && mkdir $GITHUB_WORKSPACE/vuepress/docs/.vuepress/auto-register-components/
-        ${{ inputs.auto-register-components }} && cp -r ./${{ inputs.components-dir }}/* $GITHUB_WORKSPACE/vuepress/docs/.vuepress/auto-register-components/
-        true
+        cd source/${{ inputs.docs-dir }}
+        zip -r MarkdownDocs.zip . -i '*.md'
 
     - uses: microsoft/variable-substitution@v1
       with:
@@ -80,25 +81,39 @@ runs:
         collapseSidebarSections: ${{ inputs.collapse-sidebar }}
         autoRegisterComponents: ${{ inputs.auto-register-components }}
 
+    - name: Get Token from GitHub
+      id: token
+      shell: bash
+      run: |
+        curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/bcc-code" | jq -r ".value" | echo -e "token=$(</dev/stdin)\n" >> $GITHUB_OUTPUT
+
+    - name: Upload Markdown files to azure storage
+      shell: bash
+      run: |
+        curl --request POST \
+          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
+          "https://developer.bcc.no/UploadMdContainer?aggregateContainer=MdDocs&root=${{inputs.root}}"
+
+    - name: Download Markdown files from azure storage
+      shell: bash
+      run: |
+        curl --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          "https://developer.bcc.no/GetDoc?container=MdDocs" \
+          --output MarkdownDocs.zip
+        unzip -o MarkdownDocs.zip -d vuepress/docs/
+
     - name: Build VuePress site
       shell: bash
       run: |
         cd vuepress
         npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
 
-    - name: Zips built site files
+    - name: Upload VuePress site
       shell: bash
       run: |
-          cd vuepress/docs/.vuepress/dist
-          zip -r Docs.zip *
-        
-    - name: Get Token from GitHub
-      id: token
-      shell: bash
-      run: |
-        curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/bcc-code" | jq -r ".value" | echo -e "token=$(</dev/stdin)\n" >> $GITHUB_OUTPUT
-          
-    - name: Upload files to azure storage
-      shell: bash
-      run: |
-        curl --request POST --header "Authorization: Bearer ${{steps.token.outputs.token}}" --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}"
+        cd vuepress
+        curl --request POST \
+          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --form Docs=@./.vuepress/dist.zip \
+          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=DocumentationSite"
