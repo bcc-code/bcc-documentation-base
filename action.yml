@@ -45,6 +45,10 @@ inputs:
     description: "Which provider to use for the login flow when accessing the documentation"
     required: false
     default: "github"
+  root:
+    description: "Whether or not to deploy the site to the root of the custom container (true) or to a subfolder named after the repository (false)"
+    required: false
+    default: false
 runs:
   using: "composite"
   steps:
@@ -89,7 +93,7 @@ runs:
         curl --request POST \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
-          "https://developer.bcc.no/UploadMdContainer?aggregateContainer=MdDocs"
+          "https://developer.bcc.no/UploadMdContainer?aggregateContainer=MdDocs&root=${{inputs.root}}"
 
     - name: Download Markdown files from azure storage
       shell: bash
