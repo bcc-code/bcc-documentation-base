@@ -104,3 +104,12 @@ runs:
       run: |
         cd vuepress
         npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
+
+    - name: Upload VuePress site
+      shell: bash
+      run: |
+        cd vuepress
+        curl --request POST \
+          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --form Docs=@./.vuepress/dist.zip \
+          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=DocumentationSite"
