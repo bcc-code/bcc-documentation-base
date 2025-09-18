@@ -93,13 +93,13 @@ runs:
         curl --request POST \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
-          "https://developer.bcc.no/UploadMdContainer?aggregateContainer=MdDocs&root=${{inputs.root}}"
+          "https://developer.bcc.no/UploadMdContainer?aggregateContainer=mddocs&root=${{inputs.root}}"
 
     - name: Download Markdown files from azure storage
       shell: bash
       run: |
         curl --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-          "https://developer.bcc.no/GetDoc?container=MdDocs" \
+          "https://developer.bcc.no/GetDoc?container=mddocs" \
           --output MarkdownDocs.zip
         unzip -o MarkdownDocs.zip -d vuepress/docs/
 
@@ -116,4 +116,4 @@ runs:
         curl --request POST \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --form Docs=@./.vuepress/dist.zip \
-          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=DocumentationSite"
+          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=documentation-site"
