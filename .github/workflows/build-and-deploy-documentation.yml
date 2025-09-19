@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation site and uploads it to Azure storage
-        uses: bcc-code/bcc-documentation-base@v6
+        uses: bcc-code/bcc-documentation-base@v5
         with:
           title: Documentation Guide
           description: Information on how to set up documentation for BCC projects
