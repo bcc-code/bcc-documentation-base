@@ -92,6 +92,7 @@ runs:
       run: |
         curl --request POST \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
           "https://developer.bcc.no/UploadMdContainer?aggregateContainer=mddocs&root=${{inputs.root}}"
 
@@ -109,11 +110,18 @@ runs:
         cd vuepress
         npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
 
+    - name: Zips built site files
+      shell: bash
+      run: |
+        cd vuepress/docs/.vuepress/dist
+        zip -r Docs.zip *
+
     - name: Upload VuePress site
       shell: bash
       run: |
         cd vuepress
         curl --request POST \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-          --form Docs=@./.vuepress/dist.zip \
+          --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
+          --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip \
           "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=documentation-site"
