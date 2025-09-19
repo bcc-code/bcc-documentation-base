@@ -99,12 +99,13 @@ runs:
     - name: Download Markdown files from azure storage
       shell: bash
       run: |
-        curl --request GET \ 
+        cd vuepress/docs/
+        curl --request GET \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           "https://developer.bcc.no/GetDoc?container=mddocs" \
           --output MarkdownDocs.zip
-        unzip -o MarkdownDocs.zip -d vuepress/docs/
+        unzip -o MarkdownDocs.zip
 
     - name: Build VuePress site
       shell: bash
