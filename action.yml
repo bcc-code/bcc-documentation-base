@@ -66,7 +66,7 @@ runs:
       shell: bash
       run: |
         cd source/${{ inputs.docs-dir }}
-        zip -r MarkdownDocs.zip *
+        zip -r MarkdownDocs.zip .
 
     - uses: microsoft/variable-substitution@v1
       with:
@@ -118,7 +118,7 @@ runs:
       shell: bash
       run: |
         cd vuepress/docs/.vuepress/dist
-        zip -r Docs.zip *
+        zip -r Docs.zip .
 
     - name: Upload VuePress site
       shell: bash
