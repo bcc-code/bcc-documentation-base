@@ -110,6 +110,7 @@ runs:
     - name: Build VuePress site
       shell: bash
       run: |
+        chmod -R u+rwX vuepress/docs || true
         cd vuepress
         npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
 
