@@ -123,9 +123,8 @@ runs:
     - name: Upload VuePress site
       shell: bash
       run: |
-        cd vuepress
         curl --request POST \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip \
-          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=documentation-site"
+          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=docs"
