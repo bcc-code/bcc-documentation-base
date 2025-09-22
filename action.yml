@@ -66,7 +66,7 @@ runs:
       shell: bash
       run: |
         cd source/${{ inputs.docs-dir }}
-        zip -r MarkdownDocs.zip . -i '*.md'
+        zip -r MarkdownDocs.zip *
 
     - uses: microsoft/variable-substitution@v1
       with:
