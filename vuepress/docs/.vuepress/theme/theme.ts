@@ -159,7 +159,22 @@ export default hopeTheme({
       prefix: "fa6-solid:",
     },
 
-    search: true,
+    search: {
+      locales: {
+        "/": {
+          placeholder: "Search",
+        },
+      },
+
+      getExtraFields: (page) => {
+        const extraFields = [];
+
+        if (page.content) {
+          extraFields.push(page.content);
+        }
+        return extraFields;
+      },
+    },
 
     // install @vuepress/plugin-pwa and uncomment these if you want a PWA
     // pwa: {
