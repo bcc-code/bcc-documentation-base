@@ -20,7 +20,7 @@ inputs:
   base:
     description: "The base url for the website"
     required: false
-    default: /${{ github.event.repository.name }}/
+    default: /docs
   collapse-sidebar:
     description: "Whether to collapse sidebar sections by default"
     required: false
