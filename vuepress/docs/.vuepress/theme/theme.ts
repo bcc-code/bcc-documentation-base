@@ -177,6 +177,21 @@ export default hopeTheme({
       },
     },
 
+    redirect: {
+      config: (app) => {
+        const redirects: Record<string, string> = {};
+
+        app.pages.forEach((page) => {
+          if (page.path.endsWith("/") && page.path !== "/") {
+            const pathWithoutSlash = page.path.slice(0, -1);
+            redirects[pathWithoutSlash] = page.path;
+          }
+        });
+
+        return redirects;
+      },
+    },
+
     // install @vuepress/plugin-pwa and uncomment these if you want a PWA
     // pwa: {
     //   favicon: "/favicon.ico",

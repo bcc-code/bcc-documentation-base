@@ -9,7 +9,6 @@ import { getDirname, path } from "@vuepress/utils";
 import { viteBundler } from "@vuepress/bundler-vite";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "unplugin-vue-components/resolvers";
-import { redirectPlugin } from "@vuepress/plugin-redirect";
 
 const __dirname = getDirname(import.meta.url);
 
@@ -56,20 +55,5 @@ export default defineUserConfig({
           componentsDir: path.resolve(__dirname, `./auto-register-components`),
         })
       : [],
-    redirectPlugin({
-      config: (app) => {
-        const redirects: Record<string, string> = {};
-
-        // Generate redirects for all directory paths
-        app.pages.forEach((page) => {
-          if (page.path.endsWith("/") && page.path !== "/") {
-            const pathWithoutSlash = page.path.slice(0, -1);
-            redirects[pathWithoutSlash] = page.path;
-          }
-        });
-
-        return redirects;
-      },
-    }),
   ],
 });
