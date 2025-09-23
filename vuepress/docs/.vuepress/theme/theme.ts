@@ -172,6 +172,7 @@ export default hopeTheme({
         if (page.content) {
           extraFields.push(page.content);
         }
+
         return extraFields;
       },
     },

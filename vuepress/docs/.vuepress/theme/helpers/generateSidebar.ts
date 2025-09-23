@@ -111,6 +111,10 @@ function getNestedSidebar(currentDir: string): any[] {
       );
       if (sectionFrontmatter["hideSection"] === true) return null;
 
+      const hasMarkdownFiles =
+        glob.sync("**/*.md", { cwd: dirFullPath }).length > 0;
+      if (!hasMarkdownFiles) return null; // Skip folders with no markdown files
+
       const indexFile = existsSync(path.join(dirFullPath, "README.md"))
         ? "README.md"
         : existsSync(path.join(dirFullPath, "index.md"))
