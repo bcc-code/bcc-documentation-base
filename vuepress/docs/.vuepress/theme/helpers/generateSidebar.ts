@@ -20,6 +20,14 @@ export const generateSidebar = (): SidebarConfig => {
     })
     .filter((d: string) => statSync(path.join(docsDirectory, d)).isDirectory());
 
+  // get all md files in the root of docs
+  const rootMdFiles = glob
+    .sync("*.md", {
+      cwd: docsDirectory,
+      nodir: true,
+    })
+    .filter((f: string) => !isIndexFile(f));
+
   repoDirs.forEach((repoDir: string) => {
     const repoPath = repoDir.replace(/\/$/, "");
     const children = [];
@@ -51,6 +59,17 @@ export const generateSidebar = (): SidebarConfig => {
       collapsible: true,
       link: indexFile ? `/${repoPath}/${indexFile}` : undefined,
       children,
+    });
+  });
+
+  rootMdFiles.forEach((file: string) => {
+    const frontmatter = getFrontmatter("", file);
+    sidebar["/"].push({
+      text: frontmatter.title
+        ? frontmatter.title
+        : prettifyDirectoryName(file.replace(".md", "")),
+      link: `/${file}`,
+      icon: frontmatter.icon,
     });
   });
 
