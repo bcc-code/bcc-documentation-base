@@ -18,7 +18,18 @@ export const generateSidebar = (): SidebarConfig => {
       cwd: docsDirectory,
       mark: true,
     })
-    .filter((d: string) => statSync(path.join(docsDirectory, d)).isDirectory());
+    .filter((d: string) => statSync(path.join(docsDirectory, d)).isDirectory())
+    .sort((a, b) => {
+      const aStartsWithB = a.toLowerCase().startsWith("b");
+      const bStartsWithB = b.toLowerCase().startsWith("b");
+
+      // If only one starts with 'b', put it last
+      if (aStartsWithB && !bStartsWithB) return 1;
+      if (!aStartsWithB && bStartsWithB) return -1;
+
+      // If both start with 'b' or neither starts with 'b', sort alphabetically
+      return a.localeCompare(b);
+    });
 
   // get all md files in the root of docs
   const rootMdFiles = glob
@@ -28,7 +39,24 @@ export const generateSidebar = (): SidebarConfig => {
     })
     .filter((f: string) => !isIndexFile(f));
 
-  repoDirs.forEach((repoDir: string) => {
+  const rootFileItems = rootMdFiles.map((file: string) => {
+    const frontmatter = getFrontmatter("", file);
+    return {
+      text: frontmatter.title
+        ? frontmatter.title
+        : prettifyDirectoryName(file.replace(".md", "")),
+      link: `/${file}`,
+      icon: frontmatter.icon,
+      order: getPageOrder("", file),
+    };
+  });
+
+  // Sort and add root files
+  sortByOrderProperty(rootFileItems).forEach((item) => {
+    sidebar["/"].push(item);
+  });
+
+  const dirItems = repoDirs.map((repoDir: string) => {
     const repoPath = repoDir.replace(/\/$/, "");
     const children = [];
 
@@ -49,28 +77,26 @@ export const generateSidebar = (): SidebarConfig => {
       children.push({
         text: indexTitle,
         link: `/${repoPath}/${indexFile}`,
+        order: getPageOrder(repoPath, indexFile),
       });
     }
 
     children.push(...getNestedSidebar(repoPath));
 
-    sidebar["/"].push({
-      text: prettifyDirectoryName(repoPath),
+    const sectionFrontmatter = getSectionFrontmatter(repoPath);
+
+    return {
+      text:
+        sectionFrontmatter["sectionTitle"] ?? prettifyDirectoryName(repoPath),
       collapsible: true,
       link: indexFile ? `/${repoPath}/${indexFile}` : undefined,
-      children,
-    });
+      children: sortByOrderProperty(children),
+    };
   });
 
-  rootMdFiles.forEach((file: string) => {
-    const frontmatter = getFrontmatter("", file);
-    sidebar["/"].push({
-      text: frontmatter.title
-        ? frontmatter.title
-        : prettifyDirectoryName(file.replace(".md", "")),
-      link: `/${file}`,
-      icon: frontmatter.icon,
-    });
+  // Sort and add directories
+  sortByOrderProperty(dirItems).forEach((item) => {
+    sidebar["/"].push(item);
   });
 
   return sidebar;
@@ -94,6 +120,7 @@ function getNestedSidebar(currentDir: string): any[] {
         : prettifyDirectoryName(file.replace(".md", "")),
       link: `/${currentDir}/${file}`,
       icon: frontmatter.icon,
+      order: getPageOrder(currentDir, file),
     };
   });
 
@@ -110,6 +137,10 @@ function getNestedSidebar(currentDir: string): any[] {
         path.posix.join(currentDir, dirName)
       );
       if (sectionFrontmatter["hideSection"] === true) return null;
+
+      const hasMarkdownFiles =
+        glob.sync("**/*.md", { cwd: dirFullPath }).length > 0;
+      if (!hasMarkdownFiles) return null; // Skip folders with no markdown files
 
       const indexFile = existsSync(path.join(dirFullPath, "README.md"))
         ? "README.md"
@@ -134,6 +165,7 @@ function getNestedSidebar(currentDir: string): any[] {
           text: indexTitle,
           link: `/${currentDir}/${dirName}/${indexFile}`,
           icon,
+          order: getPageOrder(path.posix.join(currentDir, dirName), indexFile),
         });
       }
 
@@ -158,16 +190,56 @@ function getNestedSidebar(currentDir: string): any[] {
         collapsible: false,
         link: dirLink,
         icon,
-        children,
+        children: sortByOrderProperty(children),
+        order: sectionFrontmatter["sectionOrder"] ?? 1,
       };
     })
     .filter(Boolean);
 
-  return [...fileItems, ...dirItems];
+  // Sort both file items and dir items, then combine
+  const sortedFileItems = sortByOrderProperty(fileItems);
+  const sortedDirItems = sortByOrderProperty(dirItems);
+
+  return [...sortedFileItems, ...sortedDirItems];
 }
 
 const isIndexFile = (fileName: string) => {
   return fileName.toLowerCase().includes("readme") || fileName == "index.md";
+};
+
+const sortByOrderProperty = <T extends { order: number }>(array: T[]): T[] => {
+  return array.sort((a, b) => {
+    if (a.order < b.order) return -1;
+    if (a.order > b.order) return 1;
+    return 0;
+  });
+};
+
+const getPageOrder = (directory: string, fileName: string): number => {
+  if (isIndexFile(fileName)) {
+    return -1;
+  }
+
+  return getFrontmatterProperty(directory, fileName, "order", 999);
+};
+
+const getFrontmatterProperty = (
+  directory: string,
+  fileName: string,
+  frontmatterProperty: string = "order",
+  defaultValue: number = 999
+): number => {
+  const filePath = path.join(docsDirectory, directory, fileName);
+  if (!existsSync(filePath)) return defaultValue;
+
+  const fileContents = readFileSync(filePath).toString();
+  const frontmatter = matter(fileContents);
+
+  if (frontmatter.data[frontmatterProperty] == null) {
+    return defaultValue;
+  }
+
+  return frontmatter.data[frontmatterProperty];
 };
 
 const getSectionFrontmatter = (directory: string) => {

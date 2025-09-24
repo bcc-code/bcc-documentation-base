@@ -166,13 +166,45 @@ export default hopeTheme({
         },
       },
 
+      maxSuggestions: 10,
+
+      isSearchable: (page) => page.path !== "/",
+
       getExtraFields: (page) => {
         const extraFields = [];
 
         if (page.content) {
-          extraFields.push(page.content);
+          const cleanContent = page.content
+            .replace(/#{1,6}\s+/g, "") // Remove headers
+            .replace(/\*\*([^*]+)\*\*/g, "$1") // Remove bold
+            .replace(/\*([^*]+)\*/g, "$1") // Remove italic
+            .replace(/`([^`]+)`/g, "$1") // Remove inline code
+            .replace(/```[\s\S]*?```/g, "") // Remove code blocks
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Remove links, keep text
+            .split("\n")
+            .filter((line) => line.trim().length > 10) // Only meaningful lines
+            .slice(0, 10) // Limit to first 10 paragraphs
+            .join(" ");
+
+          extraFields.push(cleanContent);
         }
+
         return extraFields;
+      },
+    },
+
+    redirect: {
+      config: (app) => {
+        const redirects: Record<string, string> = {};
+
+        app.pages.forEach((page) => {
+          if (page.path.endsWith("/") && page.path !== "/") {
+            const pathWithoutSlash = page.path.slice(0, -1);
+            redirects[pathWithoutSlash] = page.path;
+          }
+        });
+
+        return redirects;
       },
     },
 
