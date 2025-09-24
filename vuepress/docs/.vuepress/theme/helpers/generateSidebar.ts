@@ -18,7 +18,18 @@ export const generateSidebar = (): SidebarConfig => {
       cwd: docsDirectory,
       mark: true,
     })
-    .filter((d: string) => statSync(path.join(docsDirectory, d)).isDirectory());
+    .filter((d: string) => statSync(path.join(docsDirectory, d)).isDirectory())
+    .sort((a, b) => {
+      const aStartsWithB = a.toLowerCase().startsWith("b");
+      const bStartsWithB = b.toLowerCase().startsWith("b");
+
+      // If only one starts with 'b', put it last
+      if (aStartsWithB && !bStartsWithB) return 1;
+      if (!aStartsWithB && bStartsWithB) return -1;
+
+      // If both start with 'b' or neither starts with 'b', sort alphabetically
+      return a.localeCompare(b);
+    });
 
   // get all md files in the root of docs
   const rootMdFiles = glob
@@ -80,7 +91,6 @@ export const generateSidebar = (): SidebarConfig => {
       collapsible: true,
       link: indexFile ? `/${repoPath}/${indexFile}` : undefined,
       children: sortByOrderProperty(children),
-      order: sectionFrontmatter["sectionOrder"] ?? 1,
     };
   });
 
